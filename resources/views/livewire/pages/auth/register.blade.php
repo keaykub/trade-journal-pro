@@ -36,54 +36,177 @@ new #[Layout('layouts.guest')] class extends Component
         $this->redirect(RouteServiceProvider::HOME, navigate: true);
     }
 }; ?>
-
-<div>
-    <form wire:submit="register">
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+<div class="w-full max-w-sm">
+    <!-- Register Card -->
+    <div class="login-card rounded-2xl shadow-2xl p-6">
+        <!-- Header with Logo -->
+        <div class="text-center mb-6">
+            <div class="inline-block">
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-chart-line text-white text-lg"></i>
+                </div>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-1">สร้างบัญชีใหม่</h1>
+            <p class="text-gray-600 text-sm">เริ่มต้นการเทรดอย่างมืออาชีพ</p>
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <div class="space-y-3 mb-6">
+            {{-- <a href="{{ route('login.line') }}"
+               class="social-btn w-full flex items-center justify-center gap-3 bg-green-500 text-white rounded-lg px-4 py-3 font-medium hover:bg-green-600">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771z"/>
+                </svg>
+                เข้าสู่ระบบด้วย LINE
+            </a> --}}
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}" wire:navigate>
-                {{ __('Already registered?') }}
+            <a href="{{ route('login.google') }}"
+               class="social-btn w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 font-medium hover:bg-gray-50">
+                <i class="fab fa-google text-red-500 text-lg"></i>
+                เข้าสู่ระบบด้วย Google
             </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
         </div>
-    </form>
+
+        <!-- Divider -->
+        <div class="relative mb-6">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">หรือ</span>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form wire:submit="register" class="space-y-4">
+            <!-- Name -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400 text-sm"></i>
+                    </div>
+                    <input
+                        wire:model="name"
+                        type="text"
+                        id="name"
+                        name="name"
+                        autocomplete="name"
+                        required
+                        autofocus
+                        class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none input-focus transition-all text-sm"
+                        placeholder="ชื่อผู้ใช้"
+                    />
+                </div>
+                <x-input-error :messages="$errors->get('name')" class="mt-1 text-xs text-red-500" />
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-gray-400 text-sm"></i>
+                    </div>
+                    <input
+                        wire:model="email"
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="username"
+                        required
+                        class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none input-focus transition-all text-sm"
+                        placeholder="Email"
+                    />
+                </div>
+                <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs text-red-500" />
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                <div class="relative" x-data="{ showPassword: false }">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400 text-sm"></i>
+                    </div>
+                    <input
+                        wire:model="password"
+                        :type="showPassword ? 'text' : 'password'"
+                        id="password"
+                        name="password"
+                        autocomplete="new-password"
+                        required
+                        class="w-full pl-9 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none input-focus transition-all text-sm"
+                        placeholder="รหัสผ่าน"
+                    />
+                    <button type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-gray-400 hover:text-gray-600 text-sm"></i>
+                    </button>
+                </div>
+                <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs text-red-500" />
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">ยืนยันรหัสผ่าน</label>
+                <div class="relative" x-data="{ showConfirmPassword: false }">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-shield-alt text-gray-400 text-sm"></i>
+                    </div>
+                    <input
+                        wire:model="password_confirmation"
+                        :type="showConfirmPassword ? 'text' : 'password'"
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        autocomplete="new-password"
+                        required
+                        class="w-full pl-9 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none input-focus transition-all text-sm"
+                        placeholder="ยืนยันรหัสผ่าน"
+                    />
+                    <button type="button"
+                            @click="showConfirmPassword = !showConfirmPassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-gray-400 hover:text-gray-600 text-sm"></i>
+                    </button>
+                </div>
+                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 text-xs text-red-500" />
+            </div>
+
+            <!-- Terms and Privacy -->
+            <div class="flex items-start">
+                <input type="checkbox"
+                       id="terms"
+                       required
+                       class="h-3.5 w-3.5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5">
+                <label for="terms" class="ml-2 text-xs text-gray-600">
+                    ฉันยอมรับ
+                    <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">เงื่อนไขการใช้งาน</a>
+                    และ
+                    <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">นโยบายความเป็นส่วนตัว</a>
+                </label>
+            </div>
+
+            <!-- Register Button -->
+            <button
+                type="submit"
+                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
+            >
+                <span class="flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-user-plus"></i>
+                    สร้างบัญชี
+                </span>
+            </button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 text-sm">
+                มีบัญชีอยู่แล้ว?
+                <a href="{{ route('login') }}" wire:navigate class="text-blue-600 hover:text-blue-700 font-semibold">
+                    เข้าสู่ระบบ
+                </a>
+            </p>
+        </div>
+    </div>
 </div>
