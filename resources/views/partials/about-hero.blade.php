@@ -1,65 +1,38 @@
-<section class="gradient-bg text-white py-20 px-6 mt-20 relative overflow-hidden">
-    <!-- Animated Background -->
-    <div class="absolute inset-0">
-        <div class="blob w-72 h-72 bg-purple-300 opacity-30 top-10 left-10"></div>
-        <div class="blob w-96 h-96 bg-blue-300 opacity-30 top-20 right-10" style="animation-delay: 2s;"></div>
-        <div class="blob w-64 h-64 bg-indigo-300 opacity-30 bottom-20 left-20" style="animation-delay: 4s;"></div>
-    </div>
+<!-- แบบใหม่ - Pure Tailwind + Blue & White Theme -->
+<section class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden mt-20">
 
-    <div class="max-w-4xl mx-auto text-center relative z-10">
-        <div class="floating-animation">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                เราคือ <span class="text-gradient bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-400">Trade Journal</span>
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+        <!-- Main Heading with Animation -->
+        <div class="animate-bounce-slow mb-6 sm:mb-8">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-normal">
+                เราคือ <span class="bg-gradient-to-r from-blue-300 via-white to-blue-200 bg-clip-text text-transparent">Trade Journal</span>
             </h1>
         </div>
 
-        <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            เครื่องมือที่เกิดจากประสบการณ์จริงของเทรดเดอร์<br/>
+        <!-- Subtitle -->
+        <p class="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 sm:mb-10 lg:mb-12 text-blue-100 max-w-3xl mx-auto leading-relaxed">
+            เครื่องมือที่เกิดจากประสบการณ์จริงของเทรดเดอร์<br class="hidden sm:block"/>
             เพื่อเทรดเดอร์ โดยเทรดเดอร์
         </p>
 
         <!-- Company Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
-            <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">500+</div>
-                <div class="text-blue-200">เทรดเดอร์ใช้งาน</div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mt-8 sm:mt-12">
+            <div class="text-center p-4 sm:p-6 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">500+</div>
+                <div class="text-blue-200 text-sm sm:text-base">เทรดเดอร์ใช้งาน</div>
             </div>
-            <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">1,000+</div>
-                <div class="text-blue-200">การเทรดที่บันทึก</div>
+            <div class="text-center p-4 sm:p-6 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">15,000+</div>
+                <div class="text-blue-200 text-sm sm:text-base">การเทรดที่บันทึก</div>
             </div>
-            <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">2025</div>
-                <div class="text-blue-200">เปิดใช้งาน</div>
+            <div class="text-center p-4 sm:p-6 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">2025</div>
+                <div class="text-blue-200 text-sm sm:text-base">เปิดใช้งาน</div>
             </div>
-            <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">24/7</div>
-                <div class="text-blue-200">การสนับสนุน</div>
+            <div class="text-center p-4 sm:p-6 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300 col-span-2 lg:col-span-1">
+                <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">24/7</div>
+                <div class="text-blue-200 text-sm sm:text-base">การสนับสนุน</div>
             </div>
         </div>
     </div>
 </section>
-
-<style>
-.floating-animation {
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-
-.blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(40px);
-    animation: blob 7s infinite;
-}
-
-@keyframes blob {
-    0%, 100% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-}
-</style>

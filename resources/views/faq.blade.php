@@ -3,7 +3,7 @@
 @section('title', 'คำถามที่พบบ่อย - Trade Journal')
 
 @section('content')
-    @include('partials.faq-navigation')
+    @include('partials.navigation')
     @include('partials.faq-hero')
     @include('partials.faq-categories')
 
@@ -69,7 +69,7 @@
         </div>
     </section>
 
-    @include('partials.faq-stats')
+    {{-- @include('partials.faq-stats') --}}
     @include('partials.faq-support')
     @include('partials.footer')
 @endsection

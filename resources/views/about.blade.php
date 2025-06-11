@@ -3,7 +3,7 @@
 @section('title', 'เกี่ยวกับเรา - Trade Journal')
 
 @section('content')
-    @include('partials.about-navigation')
+    @include('partials.navigation')
     @include('partials.about-hero')
     @include('partials.about-story')
     @include('partials.about-mission')

@@ -3,7 +3,7 @@
 @section('title', 'แผนราคา - Trade Journal')
 
 @section('content')
-    @include('partials.pricing-navigation')
+    @include('partials.navigation')
     @include('partials.pricing-hero')
     @include('partials.pricing-cards')
     @include('partials.feature-comparison')
