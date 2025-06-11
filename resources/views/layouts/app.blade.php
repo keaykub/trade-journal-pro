@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', '#1 Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
+    <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/x-icon">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
