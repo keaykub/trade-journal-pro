@@ -13,6 +13,7 @@ use App\Http\Controllers\TradeController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PublicTradeController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\CleanupController;
 
 // ============================================
 // PUBLIC ROUTES (No Authentication Required)
@@ -199,4 +200,12 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 // Include Laravel Breeze auth routes
+
+
+//=============================================
+// delete old temp images
+Route::get('cleanup/temp-images', [CleanupController::class, 'clearAllTempImages'])
+    ->middleware('throttle:5,60');
+
+
 require __DIR__.'/auth.php';
