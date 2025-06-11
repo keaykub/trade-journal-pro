@@ -57,9 +57,9 @@ class Payment extends Model
         return $this->status === 'pending';
     }
 
-    public function isApproved()
+    public function isVerified()
     {
-        return $this->status === 'approved';
+        return $this->status === 'verified';
     }
 
     public function isRejected()

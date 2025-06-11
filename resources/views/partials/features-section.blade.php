@@ -42,13 +42,13 @@
             <!-- Feature 3 -->
             <div class="card-hover p-8 bg-white rounded-2xl shadow-lg border border-gray-100">
                 <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6">
-                    <i class="fas fa-robot text-white text-2xl"></i>
+                    <i class="fas fa-share-alt text-white text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4 text-gray-800">AI โค้ชส่วนตัว</h3>
-                <p class="text-gray-600 leading-relaxed">ถาม-ตอบ วิเคราะห์ หรือให้ AI แนะนำวิธีปรับปรุงการเทรดของคุณแบบเฉพาะเจาะจง</p>
+                <h3 class="text-2xl font-bold mb-4 text-gray-800">แชร์ผลงาน</h3>
+                <p class="text-gray-600 leading-relaxed">แชร์ผลการเทรดให้เพื่อนๆ ดูได้อย่างง่ายดาย</p>
 
                 <div class="mt-6 flex items-center text-green-600 font-semibold cursor-pointer hover:opacity-80">
-                    <span>ทดลองแชท AI</span>
+                    <span>ดูตัวอย่างการแชร์</span>
                     <i class="fas fa-arrow-right ml-2"></i>
                 </div>
             </div>

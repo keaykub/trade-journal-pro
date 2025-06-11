@@ -4,7 +4,7 @@
             พร้อมเริ่มต้นเทรดอย่างมืออาชีพหรือยัง?
         </h2>
         <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            เข้าร่วมกับเทรดเดอร์มากกว่า 10,000 คนที่เชื่อมั่นในเรา<br/>
+            เข้าร่วมกับเทรดเดอร์มากกว่า 500+ คนที่เชื่อมั่นในเรา<br/>
             และเริ่มเส้นทางสู่ความสำเร็จในการเทรด
         </p>
 
@@ -48,15 +48,15 @@
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <a href="mailto:hello@tradejournal.co" class="flex items-center text-blue-100 hover:text-white transition-colors">
                     <i class="fas fa-envelope mr-2"></i>
-                    hello@tradejournal.co
+                    -
                 </a>
                 <a href="https://line.me/ti/p/@tradejournal" class="flex items-center text-blue-100 hover:text-white transition-colors">
                     <i class="fab fa-line mr-2"></i>
-                    @tradejournal
+                    @mjopo
                 </a>
                 <a href="tel:+66-2-123-4567" class="flex items-center text-blue-100 hover:text-white transition-colors">
                     <i class="fas fa-phone mr-2"></i>
-                    02-123-4567
+                    -
                 </a>
             </div>
         </div>

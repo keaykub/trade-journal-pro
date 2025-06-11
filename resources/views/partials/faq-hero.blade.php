@@ -1,4 +1,4 @@
-<section class="gradient-bg text-white py-16 px-6">
+<section class="gradient-bg text-white py-16 px-6 mt-20">
     <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">
             คำถามที่พบบ่อย

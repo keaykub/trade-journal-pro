@@ -29,19 +29,47 @@ class TradeForm extends Component
     public $uploadedImages = [];
     public $imageNotes = []; // เพิ่ม array สำหรับ note ของแต่ละรูป
 
-    protected $rules = [
-        // Step 1
-        'symbol'      => 'required|string|max:20',
-        'orderType'   => 'required|in:buy,sell',
-        'entryDate'   => 'required|date',
-        // Step 2
-        'entryPrice'  => 'required|numeric',
-        // Step 3
-        'strategy'    => 'required|string',
-        // Upload - ลดขนาดไฟล์
-        'uploadedImages' => 'nullable|array|max:10',
-        'uploadedImages.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048', // ลดเหลือ 2MB
-    ];
+    // 🆕 Helper method สำหรับจำกัดจำนวนรูป
+    public function getMaxImagesProperty()
+    {
+        return auth()->user()->isFree() ? 3 : 10;
+    }
+
+    public function getMaxImageSizeProperty()
+    {
+        return auth()->user()->isFree() ? 1024 : 2048; // 1MB vs 2MB
+    }
+
+    protected function rules()
+    {
+        return [
+            // Step 1
+            'symbol'      => 'required|string|max:20',
+            'orderType'   => 'required|in:buy,sell',
+            'entryDate'   => 'required|date',
+            // Step 2
+            'entryPrice'  => 'required|numeric',
+            // Step 3
+            'strategy'    => 'required|string',
+            // Manual P&L validation - จำกัดค่าที่สมเหตุสมผล
+            'manualPnlValue' => 'nullable|numeric|between:-999999,999999',
+            // Upload - Dynamic validation ตาม plan
+            'uploadedImages' => 'nullable|array|max:' . $this->maxImages,
+            'uploadedImages.*' => 'image|mimes:jpg,jpeg,png,webp|max:' . $this->maxImageSize,
+        ];
+    }
+
+    protected function messages()
+    {
+        $planName = auth()->user()->isFree() ? 'Free' : 'Pro/Premium';
+
+        return [
+            'manualPnlValue.between' => 'P&L ต้องอยู่ระหว่าง -$999,999 ถึง $999,999',
+            'manualPnlValue.numeric' => 'P&L ต้องเป็นตัวเลขเท่านั้น',
+            'uploadedImages.max' => "แผน {$planName} อัพโหลดได้สูงสุด {$this->maxImages} รูป",
+            'uploadedImages.*.max' => "แผน {$planName} ไฟล์ขนาดสูงสุด " . ($this->maxImageSize / 1024) . "MB",
+        ];
+    }
 
     public function mount()
     {
@@ -52,17 +80,39 @@ class TradeForm extends Component
         $this->orderCategory = 'market';
     }
 
+    // Real-time validation สำหรับ manual P&L
+    public function updatedManualPnlValue()
+    {
+        // ตรวจสอบช่วงค่าที่ยอมรับได้
+        if ($this->manualPnlValue !== null && $this->manualPnlValue !== '') {
+            if (abs($this->manualPnlValue) > 999999) {
+                $this->manualPnlValue = $this->manualPnlValue > 0 ? 999999 : -999999;
+                $this->addError('manualPnlValue', 'P&L ถูกปรับเป็นค่าสูงสุดที่ยอมรับได้');
+            }
+        }
+    }
+
     public function updatedUploadedImages()
     {
+        // 🆕 เช็คจำนวนรูปตาม plan ก่อน
+        if (count($this->uploadedImages) > $this->maxImages) {
+            $this->addError('uploadedImages', "แผน " . (auth()->user()->isFree() ? 'Free' : 'Pro/Premium') . " อัพโหลดได้สูงสุด {$this->maxImages} รูป");
+
+            // ตัดรูปส่วนเกินออก
+            $this->uploadedImages = array_slice($this->uploadedImages, 0, $this->maxImages);
+            return;
+        }
+
         // Real-time validation เมื่อมีการอัพโหลดรูป
         $this->validateOnly('uploadedImages');
         $this->validateOnly('uploadedImages.*');
 
-        // ตรวจสอบขนาดไฟล์
+        // ตรวจสอบขนาดไฟล์ตาม plan
         if ($this->uploadedImages) {
             foreach ($this->uploadedImages as $index => $image) {
-                if ($image && $image->getSize() > 2048 * 1024) { // 2MB
-                    $this->addError("uploadedImages.{$index}", 'รูปภาพต้องมีขนาดไม่เกิน 2MB');
+                if ($image && $image->getSize() > $this->maxImageSize * 1024) {
+                    $maxMB = $this->maxImageSize / 1024;
+                    $this->addError("uploadedImages.{$index}", "แผน " . (auth()->user()->isFree() ? 'Free' : 'Pro/Premium') . " ไฟล์ขนาดสูงสุด {$maxMB}MB");
                 }
             }
         }
@@ -75,13 +125,54 @@ class TradeForm extends Component
         $exit = floatval($this->exitPrice);
         $lots = floatval($this->lotSize);
 
-        if ($entry && $exit && $lots) {
-            $pnl = ($this->orderType === 'buy')
-                ? ($exit - $entry) * $lots * 100000
-                : ($entry - $exit) * $lots * 100000;
-            return $pnl; // ส่งค่าตัวเลขดิบ ไม่ format ที่นี่
+        if (!$entry || !$exit || !$lots || !$this->symbol) {
+            return 0;
         }
-        return 0;
+
+        // แยกประเภทคู่เงิน
+        $pairInfo = $this->getCurrencyPairInfo($this->symbol);
+
+        // คำนวณ pip difference
+        $pipDifference = $this->orderType === 'buy'
+            ? ($exit - $entry) / $pairInfo['pip_size']
+            : ($entry - $exit) / $pairInfo['pip_size'];
+
+        // คำนวณ P&L
+        $pnl = $pipDifference * $pairInfo['pip_value'] * $lots;
+
+        return $pnl;
+    }
+
+    private function getCurrencyPairInfo($symbol)
+    {
+        $symbol = strtoupper($symbol);
+
+        // Major Pairs (USD เป็น Quote Currency)
+        $majorPairs = [
+            'EURUSD' => ['pip_size' => 0.0001, 'pip_value' => 10],
+            'GBPUSD' => ['pip_size' => 0.0001, 'pip_value' => 10],
+            'AUDUSD' => ['pip_size' => 0.0001, 'pip_value' => 10],
+            'NZDUSD' => ['pip_size' => 0.0001, 'pip_value' => 10],
+        ];
+
+        // USD เป็น Base Currency
+        $usdBasePairs = [
+            'USDCAD' => ['pip_size' => 0.0001, 'pip_value' => 7.5], // ประมาณ
+            'USDCHF' => ['pip_size' => 0.0001, 'pip_value' => 11],
+            'USDJPY' => ['pip_size' => 0.01, 'pip_value' => 9.5],   // JPY ใช้ 0.01
+        ];
+
+        // Cross Currency Pairs
+        $crossPairs = [
+            'EURJPY' => ['pip_size' => 0.01, 'pip_value' => 9.5],
+            'GBPJPY' => ['pip_size' => 0.01, 'pip_value' => 9.5],
+            'EURGBP' => ['pip_size' => 0.0001, 'pip_value' => 13],
+        ];
+
+        return $majorPairs[$symbol]
+            ?? $usdBasePairs[$symbol]
+            ?? $crossPairs[$symbol]
+            ?? ['pip_size' => 0.0001, 'pip_value' => 10]; // default
     }
 
     public function getRiskRewardProperty()
@@ -101,7 +192,7 @@ class TradeForm extends Component
     // Final values - ใช้ manual หรือ auto ตามที่ user เลือก
     public function getFinalPnlProperty()
     {
-        return $this->manualPnl ? $this->manualPnlValue : $this->pnl;
+        return $this->manualPnl ? floatval($this->manualPnlValue) : $this->pnl;
     }
 
     public function getFinalResultProperty()
@@ -115,10 +206,38 @@ class TradeForm extends Component
         return $pnl > 0 ? 'win' : ($pnl < 0 ? 'loss' : 'breakeven');
     }
 
-    // เพิ่ม helper methods สำหรับการแสดงผล
+    // ปรับปรุง helper methods สำหรับการแสดงผล - รองรับตัวเลขใหญ่
     public function getFormattedPnlProperty()
     {
+        $pnl = $this->finalPnl;
+
+        // ถ้าค่าใหญ่มาก ให้แสดงในรูปแบบย่อ
+        $absPnl = abs($pnl);
+
+        if ($absPnl >= 1000000) {
+            // 1M+ แสดงเป็น M
+            $formatted = number_format($pnl / 1000000, 1) . 'M';
+        } elseif ($absPnl >= 10000) {
+            // 10K+ แสดงเป็น K
+            $formatted = number_format($pnl / 1000, 1) . 'K';
+        } else {
+            // ต่ำกว่า 10K แสดงเต็ม
+            $formatted = number_format($pnl, 2);
+        }
+
+        return $formatted;
+    }
+
+    // เพิ่ม method สำหรับแสดงเต็ม (ใช้ใน tooltip หรือ detail)
+    public function getFullFormattedPnlProperty()
+    {
         return number_format($this->finalPnl, 2);
+    }
+
+    // เพิ่ม method สำหรับตรวจสอบว่าค่าถูกย่อหรือไม่
+    public function getIsPnlAbbreviatedProperty()
+    {
+        return abs($this->finalPnl) >= 10000;
     }
 
     public function getPnlPercentageProperty()
@@ -174,8 +293,8 @@ class TradeForm extends Component
             ],
             3 => [
                 'strategy'       => 'required|string',
-                'uploadedImages' => 'nullable|array|max:10',
-                'uploadedImages.*' => 'image|max:5120',
+                'uploadedImages' => 'nullable|array|max:' . $this->maxImages,
+                'uploadedImages.*' => 'image|max:' . ($this->maxImageSize * 1024),
             ],
             default => [],
         };
@@ -286,7 +405,6 @@ class TradeForm extends Component
             return;
         }
     }
-
 
     public function render()
     {

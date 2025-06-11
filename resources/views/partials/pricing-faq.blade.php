@@ -15,7 +15,7 @@
                     <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': active === 1 }"></i>
                 </button>
                 <div x-show="active === 1" x-transition class="px-6 pb-6">
-                    <p class="text-gray-600">คุณสามารถทดลองใช้แผนโปรและพรีเมียมฟรี 14 วัน โดยไม่ต้องผูกบัตรเครดิต</p>
+                    <p class="text-gray-600">เรามีแพลนฟรีให้ทดลองใช้ได้ไม่จำกัด</p>
                 </div>
             </div>
 
@@ -25,11 +25,31 @@
                     @click="active = active === 2 ? null : 2"
                     class="w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
                 >
-                    <span class="font-semibold text-gray-800">สามารถยกเลิกได้ทุกเมื่อหรือไม่?</span>
+                    <span class="font-semibold text-gray-800">ตัดเงินรายเดือนอัติโนมัติหรือเปล่า?</span>
                     <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': active === 2 }"></i>
                 </button>
                 <div x-show="active === 2" x-transition class="px-6 pb-6">
-                    <p class="text-gray-600">ได้ครับ คุณสามารถยกเลิกได้ทุกเมื่อผ่านหน้า Settings โดยไม่มีค่าธรรมเนียมยกเลิก</p>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mr-3 mt-0.5"></i>
+                            <div>
+                                <p class="text-gray-700 mb-3">
+                                    <strong>ไม่มีการตัดเงินอัตโนมัติ</strong> - เราใช้ระบบชำระเงินแบบ Manual Payment เท่านั้น
+                                </p>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p>✅ <strong>ความปลอดภัย:</strong> คุณควบคุมการชำระเงินได้เต็มที่</p>
+                                    <p>✅ <strong>ไม่มีค่าธรรมเนียมซ่อน:</strong> จ่ายเท่าที่เห็น ไม่มีการหักเงินโดยไม่แจ้ง</p>
+                                    <p>✅ <strong>ยืดหยุ่น:</strong> ต่ออายุเมื่อไหร่ก็ได้ตามความสะดวก</p>
+                                </div>
+                                {{-- <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                    <p class="text-yellow-800 text-sm">
+                                        <i class="fas fa-bell mr-1"></i>
+                                        <strong>เตือนความจำ:</strong> เราจะส่งแจ้งเตือนก่อนหมดอายุ 7 วัน เพื่อให้คุณมีเวลาต่ออายุ
+                                    </p>
+                                </div> --}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

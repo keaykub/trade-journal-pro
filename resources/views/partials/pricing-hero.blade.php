@@ -1,4 +1,4 @@
-<section class="gradient-bg text-white py-16 px-6" x-data="{ yearly: false }">
+<section class="gradient-bg text-white py-16 px-6 mt-20" x-data="{ yearly: false }">
     <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">
             เลือกแผนที่เหมาะกับคุณ

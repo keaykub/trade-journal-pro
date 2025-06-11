@@ -1,4 +1,4 @@
-<section class="gradient-bg text-white py-20 px-6 relative overflow-hidden">
+<section class="gradient-bg text-white py-20 px-6 mt-20 relative overflow-hidden">
     <!-- Animated Background -->
     <div class="absolute inset-0">
         <div class="blob w-72 h-72 bg-purple-300 opacity-30 top-10 left-10"></div>
@@ -21,16 +21,16 @@
         <!-- Company Stats -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
             <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">10,000+</div>
+                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">500+</div>
                 <div class="text-blue-200">เทรดเดอร์ใช้งาน</div>
             </div>
             <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">500K+</div>
+                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">1,000+</div>
                 <div class="text-blue-200">การเทรดที่บันทึก</div>
             </div>
             <div class="text-center">
-                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">2020</div>
-                <div class="text-blue-200">ก่อตั้งบริษัท</div>
+                <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">2025</div>
+                <div class="text-blue-200">เปิดใช้งาน</div>
             </div>
             <div class="text-center">
                 <div class="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">24/7</div>

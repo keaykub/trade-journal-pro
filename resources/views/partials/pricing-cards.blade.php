@@ -30,21 +30,23 @@
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">กราฟง่าย ๆ</span>
+                        <span class="text-gray-700">ฟังก์ชันพื้นฐาน</span>
                     </div>
                     <div class="flex items-center">
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">Export CSV</span>
+                        <span class="text-gray-700">แชร์บันทึกเทรดได้</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                        <span class="text-gray-700">อัปโหลดรูป 3 รูป/เทรด</span>
                     </div>
                     <div class="flex items-center opacity-50">
                         <div class="w-5 h-5 bg-gray-300 rounded-full mr-3"></div>
-                        <span class="text-gray-400 line-through">AI โค้ช</span>
-                    </div>
-                    <div class="flex items-center opacity-50">
-                        <div class="w-5 h-5 bg-gray-300 rounded-full mr-3"></div>
-                        <span class="text-gray-400 line-through">แจ้งเตือน Email</span>
+                        <span class="text-gray-400 line-through">AI แชท</span>
                     </div>
                 </div>
 
@@ -97,25 +99,29 @@
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">AI โค้ช (50 คำถาม/วัน)</span>
+                        <span class="text-gray-700">วิเคราะห์สถิติขั้นสูง</span>
                     </div>
                     <div class="flex items-center">
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">Export CSV/PDF</span>
+                        <span class="text-gray-700">อัปโหลดรูป 10 รูป/เทรด</span>
                     </div>
                     <div class="flex items-center">
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">แจ้งเตือน Email รายวัน</span>
+                        <span class="text-gray-700">ฟังก์ชันพื้นฐานทั้งหมด</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-check text-white text-xs"></i>
+                        <div class="w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full mr-3 flex items-center justify-center">
+                            <i class="fas fa-rocket text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">อัปโหลดรูป 5 รูป/เทรด</span>
+                        <span class="text-gray-700">AI แชท
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full ml-2">
+                                มาในเร็วๆนี้
+                            </span>
+                        </span>
                     </div>
                 </div>
 
@@ -134,7 +140,7 @@
                 @else
                     <a href="{{ route('register') }}"
                     class="block w-full bg-blue-600 text-white font-bold py-3 rounded-full hover:bg-blue-700 transition-colors shadow-lg text-center">
-                        เริ่มทดลอง 14 วันฟรี
+                        ชำระเงิน
                     </a>
                 @endauth
             </div>
@@ -165,7 +171,7 @@
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">AI โค้ช ไม่จำกัด</span>
+                        <span class="text-gray-700">AI แชท ไม่จำกัด</span>
                     </div>
                     <div class="flex items-center">
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
@@ -177,7 +183,7 @@
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        <span class="text-gray-700">แชร์บันทึกเทรดได้</span>
+                        <span class="text-gray-700">ฟังก์ชันพื้นฐานทั้งหมด</span>
                     </div>
                     <div class="flex items-center">
                         <div class="w-5 h-5 feature-check rounded-full flex items-center justify-center mr-3">
@@ -192,8 +198,53 @@
                         <span class="text-gray-700">Priority Support</span>
                     </div>
                 </div>
-
                 @auth
+                    @if(auth()->user()->hasActiveSubscription())
+                        <a href="{{ route('dashboard') }}"
+                        class="block w-full bg-green-600 text-white font-bold py-3 rounded-full hover:bg-green-700 transition-colors text-center">
+                            ไปยังหน้าแดชบอร์ด
+                        </a>
+                    @else
+                        <!-- Option 1: Disabled Button with Coming Soon -->
+                        <button disabled
+                                class="block w-full bg-gray-400 text-white font-bold py-3 rounded-full cursor-not-allowed transition-colors text-center relative">
+                            <span class="opacity-50">เลือกแผนพรีเมียม</span>
+                            <span class="absolute top-1 right-3 bg-yellow-500 text-yellow-900 text-xs px-2 py-1 rounded-full font-medium">
+                                เร็วๆ นี้
+                            </span>
+                        </button>
+
+                        <!-- Option 2: With Click Handler to Show Message -->
+                        <!--
+                        <button @click="showComingSoonAlert()"
+                                class="block w-full bg-gray-400 text-white font-bold py-3 rounded-full hover:bg-gray-500 transition-colors text-center relative">
+                            <span>เลือกแผนพรีเมียม</span>
+                            <span class="absolute top-1 right-3 bg-yellow-500 text-yellow-900 text-xs px-2 py-1 rounded-full font-medium">
+                                เร็วๆ นี้
+                            </span>
+                        </button>
+                        -->
+
+                        <!-- Option 3: With Notify Me Button -->
+                        <!--
+                        <button @click="notifyMeWhenReady()"
+                                class="block w-full bg-gradient-to-r from-purple-400 to-purple-600 text-white font-bold py-3 rounded-full hover:from-purple-500 hover:to-purple-700 transition-colors text-center relative">
+                            <i class="fas fa-bell mr-2"></i>
+                            แจ้งเตือนเมื่อเปิดให้บริการ
+                        </button>
+                        -->
+                    @endif
+                @else
+                    <!-- For non-authenticated users -->
+                    <button disabled
+                            class="block w-full bg-gray-400 text-white font-bold py-3 rounded-full cursor-not-allowed text-center relative">
+                        <span class="opacity-50">เลือกแผนพรีเมียม</span>
+                        <span class="absolute top-1 right-3 bg-yellow-500 text-yellow-900 text-xs px-2 py-1 rounded-full font-medium">
+                            เร็วๆ นี้
+                        </span>
+                    </button>
+                @endauth
+                {{-- @auth
                     @if(auth()->user()->hasActiveSubscription())
                         <a href="{{ route('dashboard') }}"
                         class="block w-full bg-green-600 text-white font-bold py-3 rounded-full hover:bg-green-700 transition-colors text-center">
@@ -210,7 +261,7 @@
                     class="block w-full bg-purple-600 text-white font-bold py-3 rounded-full hover:bg-purple-700 transition-colors text-center">
                         เริ่มทดลอง 14 วันฟรี
                     </a>
-                @endauth
+                @endauth --}}
             </div>
         </div>
     </div>

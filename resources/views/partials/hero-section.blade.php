@@ -12,8 +12,8 @@
             </h1>
         </div>
         <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            เครื่องมือบันทึก วิเคราะห์ และเข้าใจตัวเองในการเทรด<br/>
-            พร้อม <span class="font-semibold text-yellow-300">AI โค้ช</span> ที่จะช่วยให้คุณเทรดดีขึ้น
+            เครื่องมือบันทึก วิเคราะห์ และพัฒนาทักษะการเทรดของคุณ<br/>
+            พร้อม <span class="font-semibold text-yellow-300">รายงานสถิติละเอียด</span> ที่ช่วยให้คุณเทรดดีขึ้น
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -41,12 +41,12 @@
                 <span>ปลอดภัย 100%</span>
             </div>
             <div class="flex items-center gap-2">
-                <i class="fas fa-credit-card"></i>
-                <span>ใช้งานง่าย</span>
+                <i class="fas fa-chart-line"></i>
+                <span>วิเคราะห์แม่นยำ</span>
             </div>
             <div class="flex items-center gap-2">
                 <i class="fas fa-users"></i>
-                <span>เทรดเดอร์ 10,000+ คน</span>
+                <span>เทรดเดอร์ 500+ คน</span>
             </div>
         </div>
     </div>

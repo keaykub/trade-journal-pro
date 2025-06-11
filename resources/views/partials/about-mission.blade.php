@@ -10,56 +10,94 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <!-- Vision -->
+            <!-- Vision 1 -->
             <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6">
-                    <i class="fas fa-eye text-white text-2xl"></i>
+                    <i class="fas fa-graduation-cap text-white text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4 text-gray-800">วิสัยทัศน์</h3>
+                <h3 class="text-2xl font-bold mb-4 text-gray-800">พัฒนาทักษะการเทรด</h3>
                 <p class="text-gray-600 leading-relaxed mb-6">
-                    เป็นแพลตฟอร์มอันดับ 1 ในเอเชียตะวันออกเฉียงใต้
-                    ที่ช่วยให้เทรดเดอร์ทุกระดับสามารถเรียนรู้ พัฒนา
-                    และประสบความสำเร็จในการเทรดอย่างยั่งยืน
+                    มุ่งมั่นที่จะเป็นเครื่องมือหลักในการพัฒนาทักษะการเทรด
+                    ช่วยให้เทรดเดอร์ทุกระดับเรียนรู้จากประสบการณ์ของตัวเอง
+                    และสร้างวินัยการเทรดที่แข็งแกร่ง
                 </p>
                 <div class="space-y-3">
                     <div class="flex items-center text-gray-700">
                         <i class="fas fa-check-circle text-blue-500 mr-3"></i>
-                        <span>เครื่องมือที่ใช้งานง่าย</span>
+                        <span>เรียนรู้จากข้อผิดพลาด</span>
                     </div>
                     <div class="flex items-center text-gray-700">
                         <i class="fas fa-check-circle text-blue-500 mr-3"></i>
-                        <span>ข้อมูลเชิงลึกที่แม่นยำ</span>
+                        <span>สร้างวินัยการเทรด</span>
                     </div>
                     <div class="flex items-center text-gray-700">
                         <i class="fas fa-check-circle text-blue-500 mr-3"></i>
-                        <span>AI ที่เข้าใจเทรดเดอร์</span>
+                        <span>พัฒนาอย่างต่อเนื่อง</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Mission -->
+            <!-- Vision 2 -->
             <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                    <i class="fas fa-target text-white text-2xl"></i>
+                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6">
+                    <i class="fas fa-users text-white text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4 text-gray-800">ภารกิจ</h3>
+                <h3 class="text-2xl font-bold mb-4 text-gray-800">สร้างชุมชนเทรดเดอร์</h3>
                 <p class="text-gray-600 leading-relaxed mb-6">
-                    พัฒนาเทคโนโลยีและเครื่องมือที่ช่วยให้เทรดเดอร์เข้าใจตัวเอง
-                    วิเคราะห์จุดแข็ง-จุดอ่อน และปรับปรุงการเทรดอย่างต่อเนื่อง
-                    เพื่อสร้างรายได้ที่มั่นคงและยั่งยืน
+                    สร้างแพลตฟอร์มที่เชื่อมโยงเทรดเดอร์ทั่วประเทศไทย
+                    ให้สามารถแชร์ประสบการณ์ เรียนรู้ซึ่งกันและกัน
+                    และสร้างเครือข่ายการเทรดที่เข้มแข็ง
                 </p>
                 <div class="space-y-3">
                     <div class="flex items-center text-gray-700">
-                        <i class="fas fa-chart-line text-purple-500 mr-3"></i>
-                        <span>เพิ่มประสิทธิภาพการเทรด</span>
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        <span>แชร์ความรู้และประสบการณ์</span>
                     </div>
                     <div class="flex items-center text-gray-700">
-                        <i class="fas fa-brain text-purple-500 mr-3"></i>
-                        <span>พัฒนาทักษะการวิเคราะห์</span>
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        <span>สร้างเครือข่ายเทรดเดอร์</span>
                     </div>
                     <div class="flex items-center text-gray-700">
-                        <i class="fas fa-shield-alt text-purple-500 mr-3"></i>
-                        <span>ลดความเสี่ยงในการเทรด</span>
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        <span>เรียนรู้จากกันและกัน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="mt-16">
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 text-white">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-trophy text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">ภารกิจของเรา</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chart-line text-yellow-300"></i>
+                        </div>
+                        <h4 class="font-semibold mb-2">เพิ่มประสิทธิภาพ</h4>
+                        <p class="text-blue-100 text-sm">ช่วยให้เทรดเดอร์วิเคราะห์และปรับปรุงการเทรดของตัวเอง</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shield-alt text-green-300"></i>
+                        </div>
+                        <h4 class="font-semibold mb-2">ลดความเสี่ยง</h4>
+                        <p class="text-blue-100 text-sm">สร้างวินัยและระบบการเทรดที่ช่วยลดความเสี่ยง</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-heart text-pink-300"></i>
+                        </div>
+                        <h4 class="font-semibold mb-2">สร้างความมั่นใจ</h4>
+                        <p class="text-blue-100 text-sm">ให้ข้อมูลที่ชัดเจนเพื่อสร้างความมั่นใจในการตัดสินใจ</p>
                     </div>
                 </div>
             </div>

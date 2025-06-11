@@ -15,8 +15,8 @@
                 </div>
                 <h3 class="font-semibold text-gray-800 mb-2">อีเมล</h3>
                 <p class="text-gray-600 mb-4 text-sm">ส่งคำถามมาหาเรา<br/>ตอบกลับภายใน 2 ชั่วโมง</p>
-                <a href="mailto:support@tradejournal.co" class="text-blue-600 font-semibold hover:text-blue-700 text-sm">
-                    support@tradejournal.co
+                <a href="-" class="text-blue-600 font-semibold hover:text-blue-700 text-sm">
+                    -
                 </a>
             </div>
 
@@ -27,7 +27,7 @@
                 </div>
                 <h3 class="font-semibold text-gray-800 mb-2">Live Chat</h3>
                 <p class="text-gray-600 mb-4 text-sm">แชทสดกับทีมงาน<br/>พร้อมช่วยเหลือตลอด 24 ชม.</p>
-                <button class="text-green-600 font-semibold hover:text-green-700 text-sm" onclick="openChat()">
+                <button class="text-green-600 font-semibold hover:text-green-700 text-sm" onclick="/* openChat() */">
                     เริ่มแชท
                 </button>
             </div>
@@ -39,8 +39,8 @@
                 </div>
                 <h3 class="font-semibold text-gray-800 mb-2">LINE</h3>
                 <p class="text-gray-600 mb-4 text-sm">ติดต่อผ่าน LINE<br/>สะดวกและรวดเร็ว</p>
-                <a href="https://line.me/ti/p/@tradejournal" target="_blank" class="text-purple-600 font-semibold hover:text-purple-700 text-sm">
-                    @tradejournal
+                <a href="https://bit.ly/linemjopo" target="_blank" class="text-purple-600 font-semibold hover:text-purple-700 text-sm">
+                    @mjopo
                 </a>
             </div>
         </div>
