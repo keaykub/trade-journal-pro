@@ -1,6 +1,5 @@
 <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors">
     <div class="max-w-4xl mx-auto">
-
         <!-- Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">ตั้งค่าบัญชี</h1>
@@ -52,6 +51,10 @@
                 <button wire:click="$set('activeTab', 'security')"
                         class="py-2 px-1 border-b-2 font-medium text-sm transition-colors {{ $activeTab === 'security' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
                     <i class="fas fa-shield-alt mr-2"></i>ความปลอดภัย
+                </button>
+                <button wire:click="$set('activeTab', 'subscriptions')"
+                        class="py-2 px-1 border-b-2 font-medium text-sm transition-colors {{ $activeTab === 'subscriptions' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
+                    <i class="fas fa-credit-card mr-2"></i>การสมัครสมาชิก
                 </button>
             </nav>
         </div>
@@ -318,6 +321,114 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            @endif
+            <!-- Subscriptions Tab -->
+            @if($activeTab === 'subscriptions')
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">การสมัครสมาชิก</h2>
+                        <button wire:click="loadSubscriptions"
+                                wire:loading.attr="disabled"
+                                class="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50">
+                            <i class="fas fa-sync-alt mr-2" wire:loading.class="fa-spin"></i>รีเฟรช
+                        </button>
+                    </div>
+
+                    @if($isLoadingSubscriptions)
+                        <div class="flex items-center justify-center py-12">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-spinner fa-spin text-blue-500"></i>
+                                <span class="text-gray-600 dark:text-gray-400">กำลังโหลดข้อมูล...</span>
+                            </div>
+                        </div>
+                    @elseif(empty($subscriptions))
+                        <div class="text-center py-12">
+                            <i class="fas fa-credit-card text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">ยังไม่มีการสมัครสมาชิก</h3>
+                            <p class="text-gray-600 dark:text-gray-400">คุณยังไม่ได้สมัครแพ็กเกจใดๆ</p>
+                        </div>
+                    @else
+                        <div class="space-y-4">
+                            @foreach($subscriptions as $subscription)
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <span class="inline-flex items-center bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 px-2 py-0.5 rounded text-md font-semibold">
+                                                    <i class="fas fa-crown mr-1"></i> {{  $this->getPlanDisplayName($subscription) ?? ucfirst($subscription['name']) . ' Plan' }}
+                                                </span>
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium {{ $this->getSubscriptionStatusClass($subscription) }}">
+                                                    {{ $this->getSubscriptionStatusText($subscription) }}
+                                                </span>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                                <div>
+                                                    <span class="font-medium">ราคา:</span> {{ $this->getPriceSubscription($subscription) }}
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium">จำนวน:</span> {{ $subscription['quantity'] }}
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium">วันที่สมัคร:</span>
+                                                    {{ \Carbon\Carbon::parse($subscription['created_at'])->locale('th')->format('j M Y') }}
+                                                </div>
+
+                                                @if($subscription['trial_ends_at'])
+                                                    <div>
+                                                        <span class="font-medium">ทดลองใช้ถึง:</span>
+                                                        {{ \Carbon\Carbon::parse($subscription['trial_ends_at'])->locale('th')->format('j M Y H:i') }}
+                                                    </div>
+                                                @endif
+
+                                                @if($subscription['ends_at'])
+                                                    <div>
+                                                        <span class="font-medium">
+                                                            @if($subscription['on_grace_period'])
+                                                                วันหมดอายุ:
+                                                            @else
+                                                                ยกเลิกเมื่อ:
+                                                            @endif
+                                                        </span>
+                                                        {{ \Carbon\Carbon::parse($subscription['ends_at'])->locale('th')->format('j M Y H:i') }}
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            @if($subscription['on_grace_period'])
+                                                <div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-info-circle text-yellow-500 mr-2"></i>
+                                                        <span class="text-sm text-yellow-800 dark:text-yellow-200">
+                                                            การสมัครสมาชิกนี้จะสิ้นสุดวันที่ {{ \Carbon\Carbon::parse($subscription['ends_at'])->locale('th')->format('j M Y H:i') }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex flex-col space-y-2 ml-4">
+                                            @if($subscription['active'] && !$subscription['on_grace_period'])
+                                                <button wire:click="cancelSubscription({{ $subscription['id'] }})"
+                                                        wire:loading.attr="disabled"
+                                                        class="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                                                        onclick="return confirm('คุณแน่ใจหรือไม่ที่จะยกเลิกการสมัครสมาชิกนี้?')">
+                                                    <i class="fas fa-times mr-1"></i>ยกเลิก
+                                                </button>
+                                            @elseif($subscription['on_grace_period'])
+                                                <button wire:click="resumeSubscription({{ $subscription['id'] }})"
+                                                        wire:loading.attr="disabled"
+                                                        class="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50">
+                                                    <i class="fas fa-undo mr-1"></i>กู้คืน
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>

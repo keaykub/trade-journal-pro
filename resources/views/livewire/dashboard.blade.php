@@ -1,28 +1,28 @@
 <div class="min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
-     x-data="{
-         showStats: window.innerWidth >= 1024,
-         showFilters: window.innerWidth >= 1024,
-         isMobile: window.innerWidth < 1024
-     }"
-     x-init="
-         $watch('isMobile', value => {
-             if (!value) {
-                 // Desktop: แสดงทั้งคู่
-                 showStats = true;
-                 showFilters = true;
-             } else {
-                 // Mobile: ซ่อนทั้งคู่
-                 showStats = false;
-                 showFilters = false;
-             }
-         });
-         window.addEventListener('resize', () => {
-             const newIsMobile = window.innerWidth < 1024;
-             if (newIsMobile !== isMobile) {
-                 isMobile = newIsMobile;
-             }
-         });
-     ">
+    x-data="{
+    showStats: window.innerWidth >= 1024,
+    showFilters: window.innerWidth >= 1024,
+    isMobile: window.innerWidth < 1024
+    }"
+    x-init="
+    $watch('isMobile', value => {
+        if (!value) {
+            // Desktop: แสดงทั้งคู่
+            showStats = true;
+            showFilters = true;
+        } else {
+            // Mobile: ซ่อนทั้งคู่
+            showStats = false;
+            showFilters = false;
+        }
+    });
+    window.addEventListener('resize', () => {
+        const newIsMobile = window.innerWidth < 1024;
+        if (newIsMobile !== isMobile) {
+            isMobile = newIsMobile;
+        }
+    });
+    ">
     <div class="max-w-7xl mx-auto px-4 py-4">
         <!-- Mobile Toggle Buttons -->
         <div class="lg:hidden mb-6 flex space-x-3">
@@ -106,62 +106,123 @@
 
         <!-- Search and Filters Section -->
         <div x-show="showFilters || !isMobile"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 transform -translate-y-4"
-             x-transition:enter-end="opacity-100 transform translate-y-0"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 transform translate-y-0"
-             x-transition:leave-end="opacity-0 transform -translate-y-4"
-             class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-3xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl mb-8">
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform -translate-y-4"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform -translate-y-4"
+            class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-3xl p-4 sm:p-6 border border-white/20 dark:border-slate-700/50 shadow-xl mb-8">
 
             <!-- Enhanced Search Section -->
             <div class="mb-5">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+                <!-- Grid Layout - Responsive -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12 gap-4 items-end">
+
                     <!-- Enhanced Search -->
-                    <div class="lg:col-span-3">
+                    <div class="sm:col-span-2 lg:col-span-2 xl:col-span-3">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             <i class="fas fa-search mr-2 text-blue-600"></i>ค้นหา
                         </label>
                         <div class="relative">
                             <input type="text" wire:model.live="search"
-                                   placeholder="Symbol, กลยุทธ์, หรือ custom strategy..."
-                                   class="w-full px-4 py-3 pl-10 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400">
+                                placeholder="Symbol, กลยุทธ์, หรือ custom strategy..."
+                                class="w-full px-4 py-3 pl-10 pr-10 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm">
                             <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
                                 <i class="fas fa-search text-sm"></i>
                             </div>
                             @if($search)
-                            <button wire:click="$set('search', '')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <button wire:click="$set('search', '')"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
                                 <i class="fas fa-times text-sm"></i>
                             </button>
                             @endif
                         </div>
                     </div>
 
-                    <!-- Date From -->
-                    <div class="lg:col-span-2">
+                    <!-- Date From with Flatpickr -->
+                    <div class="lg:col-span-1 xl:col-span-2"
+                        x-data="{
+                            instance: null,
+                            init() {
+                                this.instance = flatpickr($refs.input, {
+                                    locale: 'th',
+                                    dateFormat: 'Y-m-d',
+                                    defaultDate: $wire.dateFrom,
+                                    onChange: function(selectedDates, dateStr) {
+                                        $wire.set('dateFrom', dateStr);
+                                    }
+                                });
+                            }
+                        }"
+                        x-init="init()"
+                        x-effect="instance.setDate($wire.dateFrom, false)"
+                    >
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            <i class="fas fa-calendar-alt mr-2 text-emerald-600"></i>วันที่เริ่มต้น
+                            <i class="fas fa-calendar-alt mr-2 text-emerald-600"></i>
+                            <span class="hidden sm:inline">วันที่เริ่มต้น</span>
+                            <span class="sm:hidden">เริ่มต้น</span>
                         </label>
-                        <input type="date" wire:model.live="dateFrom"
-                               class="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300 dark:text-white">
+
+                        <div class="relative">
+                            <!-- Icon calendar (ตกแต่งด้วย Tailwind + absolute) -->
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar text-emerald-600"></i>
+                            </div>
+
+                            <!-- Flatpickr input -->
+                            <input x-ref="input"
+                                type="text"
+                                class="w-full pl-10 pr-3 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300 dark:text-white text-sm"
+                                placeholder="เลือกวันที่เริ่มต้น">
+                        </div>
                     </div>
 
-                    <!-- Date To -->
-                    <div class="lg:col-span-2">
+                    <!-- Date To with Flatpickr -->
+                    <div class="lg:col-span-1 xl:col-span-2"
+                        x-data="{
+                            instance: null,
+                            init() {
+                                this.instance = flatpickr($refs.inputTo, {
+                                    locale: 'th',
+                                    dateFormat: 'Y-m-d',
+                                    defaultDate: $wire.dateTo,
+                                    onChange: function(selectedDates, dateStr) {
+                                        $wire.set('dateTo', dateStr);
+                                    }
+                                });
+                            }
+                        }"
+                        x-init="init()"
+                        x-effect="instance.setDate($wire.dateTo, false)"
+                    >
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            <i class="fas fa-calendar-check mr-2 text-orange-600"></i>วันที่สิ้นสุด
+                            <i class="fas fa-calendar-check mr-2 text-orange-600"></i>
+                            <span class="hidden sm:inline">วันที่สิ้นสุด</span>
+                            <span class="sm:hidden">สิ้นสุด</span>
                         </label>
-                        <input type="date" wire:model.live="dateTo"
-                               class="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 dark:text-white">
+
+                        <div class="relative">
+                            <!-- Icon calendar -->
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar text-orange-500"></i>
+                            </div>
+
+                            <!-- Flatpickr input -->
+                            <input x-ref="inputTo"
+                                type="text"
+                                class="w-full pl-10 pr-3 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 dark:text-white text-sm"
+                                placeholder="เลือกวันที่สิ้นสุด">
+                        </div>
                     </div>
 
                     <!-- Status Filter -->
-                    <div class="lg:col-span-2">
+                    <div class="lg:col-span-1 xl:col-span-2">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             <i class="fas fa-flag mr-2 text-purple-600"></i>สถานะ
                         </label>
                         <select wire:model.live="statusFilter"
-                                class="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-slate-800 dark:text-white">
+                                class="w-full px-3 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-slate-800 dark:text-white text-sm">
                             <option value="">ทั้งหมด</option>
                             <option value="win">Win</option>
                             <option value="loss">Loss</option>
@@ -171,12 +232,12 @@
                     </div>
 
                     <!-- Strategy Filter -->
-                    <div class="lg:col-span-2">
+                    <div class="lg:col-span-1 xl:col-span-2">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             <i class="fas fa-chess mr-2 text-indigo-600"></i>กลยุทธ์
                         </label>
                         <select wire:model.live="strategyFilter"
-                                class="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-slate-800 dark:text-white">
+                                class="w-full px-3 py-3 bg-slate-50/80 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-slate-800 dark:text-white text-sm">
                             <option value="">ทั้งหมด</option>
                             @foreach($uniqueStrategies as $strategy)
                                 <option value="{{ $strategy }}">{{ ucfirst($strategy) }}</option>
@@ -185,16 +246,16 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="lg:col-span-1 flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:space-x-2">
+                    <div class="sm:col-span-2 lg:col-span-6 xl:col-span-1 flex flex-col sm:flex-row gap-2 lg:justify-end">
                         <button wire:click="resetFilters"
-                                class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl transition-all duration-300 font-medium flex items-center justify-center">
+                                class="flex-1 lg:flex-none lg:w-auto px-3 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl transition-all duration-300 font-medium flex items-center justify-center text-sm min-w-0">
                             <i class="fas fa-undo text-sm mr-2 lg:mr-0"></i>
-                            <span class="lg:hidden">รีเซ็ต</span>
+                            <span class="lg:hidden truncate">รีเซ็ต</span>
                         </button>
                         <button wire:click="exportTrades"
-                                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-300 font-medium flex items-center justify-center">
+                                class="flex-1 lg:flex-none lg:w-auto px-3 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-300 font-medium flex items-center justify-center text-sm min-w-0">
                             <i class="fas fa-download text-sm mr-2 lg:mr-0"></i>
-                            <span class="lg:hidden">Export</span>
+                            <span class="lg:hidden truncate">Export</span>
                         </button>
                     </div>
                 </div>
@@ -202,12 +263,13 @@
                 <!-- Quick Filter Tags -->
                 @if($search || $statusFilter || $strategyFilter || $dateFrom !== now()->startOfMonth()->format('Y-m-d') || $dateTo !== now()->endOfMonth()->format('Y-m-d'))
                 <div class="mt-4 flex flex-wrap gap-2">
-                    <span class="text-sm text-slate-600 dark:text-slate-400 mr-2">ฟิลเตอร์ที่ใช้:</span>
+                    <span class="text-sm text-slate-600 dark:text-slate-400 mr-2 flex-shrink-0">ฟิลเตอร์ที่ใช้:</span>
 
                     @if($search)
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                        <i class="fas fa-search mr-1"></i>{{ $search }}
-                        <button wire:click="$set('search', '')" class="ml-2 hover:text-blue-600">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 max-w-48">
+                        <i class="fas fa-search mr-1 flex-shrink-0"></i>
+                        <span class="truncate">{{ $search }}</span>
+                        <button wire:click="$set('search', '')" class="ml-2 hover:text-blue-600 flex-shrink-0">
                             <i class="fas fa-times"></i>
                         </button>
                     </span>
@@ -373,11 +435,11 @@
                                             <i class="fas fa-share-alt text-xs"></i>
                                         </button>
 
-                                        <button wire:click="{{-- editTrade('{{ $trade->id }}') --}}"
-                                                class="p-1.5 text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded transition-colors duration-200"
-                                                title="แก้ไข">
+                                        <a href="{{ route('trades.edit', $trade->id) }}"
+                                        class="p-1.5 text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded transition-colors duration-200"
+                                        title="แก้ไข">
                                             <i class="fas fa-edit text-xs"></i>
-                                        </button>
+                                        </a>
 
                                         <div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
@@ -560,6 +622,11 @@
                 </button>
             </div>
         </div>
+    </div>
+@endif
+@if (session('message'))
+    <div class="bg-yellow-100 text-yellow-800 p-3 rounded mb-4">
+        {{ session('message') }}
     </div>
 @endif
 </div>

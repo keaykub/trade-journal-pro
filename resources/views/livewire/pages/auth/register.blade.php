@@ -22,18 +22,30 @@ new #[Layout('layouts.guest')] class extends Component
     public function register(): void
     {
         $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z0-9ก-๙]+$/' // อนุญาตเฉพาะตัวอักษรภาษาอังกฤษ, ตัวเลข, ตัวอักษรไทย (ห้ามช่องว่าง)
+            ],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'name.regex' => 'ชื่อผู้ใช้งานสามารถใช้ได้เฉพาะตัวอักษรและตัวเลขเท่านั้น'
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered($user = User::create($validated)));
+        $user = User::create($validated);
 
+        // ส่งอีเมลยืนยันทันทีหลัง create user
+        $user->sendEmailVerificationNotification();
+
+        event(new Registered($user));
         Auth::login($user);
 
-        $this->redirect(RouteServiceProvider::HOME, navigate: true);
+        // ไปหน้า verification เสมอ (เพราะ user ใหม่ยังไม่ได้ verify)
+        $this->redirect(route('verification.notice'), navigate: true);
     }
 }; ?>
 <div class="w-full max-w-sm">
@@ -190,11 +202,22 @@ new #[Layout('layouts.guest')] class extends Component
             <!-- Register Button -->
             <button
                 type="submit"
-                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-70 disabled:transform-none disabled:hover:scale-100 disabled:cursor-not-allowed"
+                wire:loading.attr="disabled"
+                wire:loading.class="loading-pulse"
             >
-                <span class="flex items-center justify-center gap-2 text-sm">
+                <!-- Default State -->
+                <span class="flex items-center justify-center gap-2 text-sm" wire:loading.remove wire:target="register">
                     <i class="fas fa-user-plus"></i>
                     สร้างบัญชี
+                </span>
+
+                <!-- Loading State -->
+                <span class="flex items-center justify-center gap-2 text-sm" wire:loading wire:target="register">
+                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </span>
             </button>
         </form>

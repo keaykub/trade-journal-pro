@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Billable;
 
     protected static function booted()
     {
@@ -26,6 +28,7 @@ class User extends Authenticatable
     protected $keyType = 'string';
 
     protected $casts = [
+         'email_verified_at' => 'datetime',
         'default_lot_size' => 'float',
         'risk_percentage' => 'float',
         'auto_calculate_rr' => 'boolean',
@@ -63,9 +66,10 @@ class User extends Authenticatable
 
     public function hasActiveSubscription()
     {
-        return $this->subscriptions()
+        /* return $this->subscriptions()
             ->where('status', 'verified')
-            ->exists();
+            ->exists(); */
+        return 'reject';
     }
 
     public function currentPlanName()
@@ -79,7 +83,7 @@ class User extends Authenticatable
     // 🎯 เท่านี้พอ - ง่ายๆ
     public function getCurrentPlan()
     {
-        // 1. เช็คว่ามีข้อมูลใน subscription table ไหม
+        /* // 1. เช็คว่ามีข้อมูลใน subscription table ไหม
         $subscription = $this->subscriptions()
             ->where('status', 'verified')
             ->orderByDesc('created_at')
@@ -88,7 +92,7 @@ class User extends Authenticatable
         // 2. ถ้ามี ดึง plan_id มาดู
         if ($subscription && $subscription->plan_id) {
             return $subscription->plan_id;
-        }
+        } */
 
         // 3. ถ้าไม่มี = free
         return 'free';

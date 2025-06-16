@@ -94,7 +94,7 @@
                             <div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                                 <i class="fas fa-check text-white text-xs"></i>
                             </div>
-                            <span class="text-blue-700 text-sm sm:text-base">สถิติและกราฟครบครัน</span>
+                            <span class="text-blue-700 text-sm sm:text-base">สถิติและกราฟขั้นสูง</span>
                         </div>
                         <div class="flex items-center">
                             <div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
@@ -127,19 +127,21 @@
                     </div>
 
                     @auth
-                        @if(auth()->user()->hasActiveSubscription())
+                        @if(auth()->user()->subscribed('default') && auth()->user()->subscription('default')->valid())
                             <a href="{{ route('dashboard') }}"
                             class="block w-full bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base">
                                 ไปยังหน้าแดชบอร์ด
                             </a>
                         @else
-                            <button @click="selectPlan('pro')"
-                                    class="block w-full bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base">
-                                เลือกแผนโปร
-                            </button>
+                            <section x-data="pricingData()">
+                                <button @click="selectPlan('pro')"
+                                        class="block w-full bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base">
+                                    เลือกแผนโปร
+                                </button>
+                            </section>
                         @endif
                     @else
-                        <a href="{{ route('register') }}"
+                        <a href="{{ route('login') }}"
                         class="block w-full bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl text-center text-sm sm:text-base">
                             ชำระเงิน
                         </a>
@@ -202,10 +204,17 @@
 
                     @auth
                         @if(auth()->user()->hasActiveSubscription())
-                            <a href="{{ route('dashboard') }}"
+                            {{-- <a href="{{ route('dashboard') }}"
                             class="block w-full bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all duration-300 text-center text-sm sm:text-base">
                                 ไปยังหน้าแดชบอร์ด
-                            </a>
+                            </a> --}}
+                            <button disabled
+                                class="block w-full bg-blue-300 text-white font-bold py-3 sm:py-4 rounded-full cursor-not-allowed text-center relative text-sm sm:text-base">
+                            <span class="opacity-60">เลือกแผนพรีเมียม</span>
+                            <span class="absolute top-1 right-3 bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                                เร็วๆ นี้
+                            </span>
+                        </button>
                         @else
                             <button disabled
                                     class="block w-full bg-blue-300 text-white font-bold py-3 sm:py-4 rounded-full cursor-not-allowed transition-all duration-300 text-center relative text-sm sm:text-base">
@@ -227,52 +236,47 @@
                 </div>
             </div>
         </div>
-
-        <!-- Include Payment Modal -->
-        @include('partials.payment-modal')
     </section>
 
     <script>
-    function pricingData() {
-        return {
-            yearly: false,
-            showPaymentModal: false,
-            selectedPlan: {},
-            paymentMethod: 'qr',
-            selectedFile: null,
-            previewUrl: null,
-            isSubmitting: false,
+        function pricingData() {
+            return {
+                yearly: false, // ถ้าจะมี plan รายปีในอนาคต
+                loading: false,
+                selectPlan(plan) {
+                    this.loading = true;
 
-            plans: {
-                'pro': {
-                    monthly: {
-                        id: 'pro-monthly',
-                        name: 'โปร (รายเดือน)',
-                        description: 'สำหรับเทรดเดอร์จริงจัง',
-                        price: 249,
-                        billing: 'ต่อเดือน'
-                    },
-                    yearly: {
-                        id: 'pro-yearly',
-                        name: 'โปร (รายปี)',
-                        description: 'สำหรับเทรดเดอร์จริงจัง - ประหยัด 20%',
-                        price: 2390,
-                        billing: 'ต่อปี (ประหยัด ฿1,198)'
-                    }
+                    fetch('/checkout/redirect', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({
+                            plan: plan,
+                            yearly: this.yearly
+                        })
+                    })
+                    .then(async res => {
+                        this.loading = false;
+                        const data = await res.json();
+
+                        if (data.url) {
+                            window.location.href = data.url;
+                        } else if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else if (data.error) {
+                            alert(data.error);
+                        } else {
+                            alert('เกิดข้อผิดพลาด ไม่พบลิงก์ชำระเงิน');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        this.loading = false;
+                        alert('เชื่อมต่อไม่ได้ กรุณาลองใหม่');
+                    });
                 }
-            },
-
-            selectPlan(planType) {
-                const billing = this.yearly ? 'yearly' : 'monthly';
-                this.selectedPlan = this.plans[planType][billing];
-                this.showPaymentModal = true;
-                document.body.style.overflow = 'hidden';
-            },
-
-            closePaymentModal() {
-                this.showPaymentModal = false;
-                document.body.style.overflow = 'auto';
             }
         }
-    }
     </script>

@@ -25,19 +25,104 @@ class TradeForm extends Component
     public $manualResult = false; // toggle สำหรับ manual result selection
     public $manualResultValue = 'pending'; // ค่า result ที่ user เลือกเอง
 
-    // Images - กลับมาใช้ multiple upload แบบเดิม
+    // Images - แก้ไขเป็น separate property สำหรับการจัดการ
     public $uploadedImages = [];
+    public $newImages = []; // เพิ่ม property ใหม่สำหรับรูปที่อัพโหลดใหม่
     public $imageNotes = []; // เพิ่ม array สำหรับ note ของแต่ละรูป
 
     // 🆕 Helper method สำหรับจำกัดจำนวนรูป
     public function getMaxImagesProperty()
     {
-        return auth()->user()->isFree() ? 3 : 10;
+        $user = auth()->user();
+
+        // Cache subscription data for 5 minutes
+        $cacheKey = "user_subscription_limits_{$user->id}";
+
+        $subscriptionData = cache()->remember($cacheKey, 300, function () use ($user) {
+            $activeSubscription = $user->subscriptions()
+                ->where('stripe_status', 'active')
+                ->first();
+
+            return [
+                'has_subscription' => (bool) $activeSubscription,
+                'price_id' => $activeSubscription->stripe_price ?? null,
+                'plan_type' => $this->determinePlanType($activeSubscription),
+            ];
+        });
+
+        if (!$subscriptionData['has_subscription']) {
+            return 3; // Free plan
+        }
+
+        $limits = [
+            'price_1RaIueCZi1bmUwYslJWl6shH' => 10, // ProPlan รายเดือน
+            'price_basic_monthly' => 10,
+            'price_pro_monthly' => 10,
+            'price_premium_monthly' => 10,
+        ];
+
+        return $limits[$subscriptionData['price_id']] ?? 10;
     }
 
     public function getMaxImageSizeProperty()
     {
-        return auth()->user()->isFree() ? 1024 : 2048; // 1MB vs 2MB
+        $user = auth()->user();
+        $cacheKey = "user_subscription_limits_{$user->id}";
+
+        $subscriptionData = cache()->get($cacheKey);
+
+        // ถ้าไม่มีใน cache ให้ดึงใหม่
+        if (!$subscriptionData) {
+            $activeSubscription = $user->subscriptions()
+                ->where('stripe_status', 'active')
+                ->first();
+
+            $subscriptionData = [
+                'has_subscription' => (bool) $activeSubscription,
+                'price_id' => $activeSubscription->stripe_price ?? null,
+            ];
+
+            cache()->put($cacheKey, $subscriptionData, 300);
+        }
+
+        if (!$subscriptionData['has_subscription']) {
+            return 1024; // Free plan - 1MB
+        }
+
+        $limits = [
+            'price_1RaIueCZi1bmUwYslJWl6shH' => 3072, // ProPlan - 3MB
+            'price_basic_monthly' => 2048,            // Basic - 2MB
+            'price_pro_monthly' => 5120,              // Pro - 5MB
+            'price_premium_monthly' => 10240,         // Premium - 10MB
+        ];
+
+        return $limits[$subscriptionData['price_id']] ?? 2048;
+    }
+
+    private function determinePlanType($subscription)
+    {
+        if (!$subscription) {
+            return 'free';
+        }
+
+        $priceId = $subscription->stripe_price;
+
+        $planTypes = [
+            'price_1RaIueCZi1bmUwYslJWl6shH' => 'pro',
+            'price_basic_monthly' => 'basic',
+            'price_pro_monthly' => 'pro',
+            'price_premium_monthly' => 'premium',
+        ];
+
+        return $planTypes[$priceId] ?? 'basic';
+    }
+
+    // Method สำหรับ clear cache เมื่อ subscription เปลี่ยนแปลง
+    public function clearSubscriptionCache()
+    {
+        $user = auth()->user();
+        $cacheKey = "user_subscription_limits_{$user->id}";
+        cache()->forget($cacheKey);
     }
 
     protected function rules()
@@ -53,9 +138,13 @@ class TradeForm extends Component
             'strategy'    => 'required|string',
             // Manual P&L validation - จำกัดค่าที่สมเหตุสมผล
             'manualPnlValue' => 'nullable|numeric|between:-999999,999999',
+            // Note
+            'notes' => 'nullable|string|max:500',
             // Upload - Dynamic validation ตาม plan
-            'uploadedImages' => 'nullable|array|max:' . $this->maxImages,
-            'uploadedImages.*' => 'image|mimes:jpg,jpeg,png,webp|max:' . $this->maxImageSize,
+            'newImages' => 'nullable|array|max:' . $this->maxImages,
+            'newImages.*' => 'image|mimes:jpg,jpeg,png,webp|max:' . $this->maxImageSize,
+            // Image notes - ถ้ามีรูป ต้องมี note ด้วย
+            'imageNotes.*' => 'nullable|string|max:255',
         ];
     }
 
@@ -66,8 +155,8 @@ class TradeForm extends Component
         return [
             'manualPnlValue.between' => 'P&L ต้องอยู่ระหว่าง -$999,999 ถึง $999,999',
             'manualPnlValue.numeric' => 'P&L ต้องเป็นตัวเลขเท่านั้น',
-            'uploadedImages.max' => "แผน {$planName} อัพโหลดได้สูงสุด {$this->maxImages} รูป",
-            'uploadedImages.*.max' => "แผน {$planName} ไฟล์ขนาดสูงสุด " . ($this->maxImageSize / 1024) . "MB",
+            'newImages.max' => "แผน {$planName} อัพโหลดได้สูงสุด {$this->maxImages} รูป",
+            'newImages.*.max' => "แผน {$planName} ไฟล์ขนาดสูงสุด " . ($this->maxImageSize / 1024) . "MB",
         ];
     }
 
@@ -92,30 +181,54 @@ class TradeForm extends Component
         }
     }
 
-    public function updatedUploadedImages()
+    // แก้ไข method นี้เป็น newImages แทน
+    public function updatedNewImages()
     {
-        // 🆕 เช็คจำนวนรูปตาม plan ก่อน
-        if (count($this->uploadedImages) > $this->maxImages) {
-            $this->addError('uploadedImages', "แผน " . (auth()->user()->isFree() ? 'Free' : 'Pro/Premium') . " อัพโหลดได้สูงสุด {$this->maxImages} รูป");
+        // Append รูปใหม่เข้ากับรูปเก่า
+        if ($this->newImages) {
+            // เช็คจำนวนรูปรวมแล้ว
+            $totalImages = count($this->uploadedImages) + count($this->newImages);
 
-            // ตัดรูปส่วนเกินออก
-            $this->uploadedImages = array_slice($this->uploadedImages, 0, $this->maxImages);
-            return;
-        }
+            if ($totalImages > $this->maxImages) {
+                $allowedNew = $this->maxImages - count($this->uploadedImages);
+                $this->addError('newImages', "สามารถอัพโหลดได้อีก {$allowedNew} รูปเท่านั้น (ขีดจำกัด: {$this->maxImages} รูป)");
 
-        // Real-time validation เมื่อมีการอัพโหลดรูป
-        $this->validateOnly('uploadedImages');
-        $this->validateOnly('uploadedImages.*');
+                // ตัดรูปส่วนเกินออก
+                $this->newImages = array_slice($this->newImages, 0, $allowedNew);
+                return;
+            }
 
-        // ตรวจสอบขนาดไฟล์ตาม plan
-        if ($this->uploadedImages) {
-            foreach ($this->uploadedImages as $index => $image) {
+            // Validation รูปใหม่
+            $this->validateOnly('newImages');
+            $this->validateOnly('newImages.*');
+
+            // ตรวจสอบขนาดไฟล์
+            foreach ($this->newImages as $index => $image) {
                 if ($image && $image->getSize() > $this->maxImageSize * 1024) {
                     $maxMB = $this->maxImageSize / 1024;
-                    $this->addError("uploadedImages.{$index}", "แผน " . (auth()->user()->isFree() ? 'Free' : 'Pro/Premium') . " ไฟล์ขนาดสูงสุด {$maxMB}MB");
+                    $this->addError("newImages.{$index}", "แผน " . (auth()->user()->isFree() ? 'Free' : 'Pro/Premium') . " ไฟล์ขนาดสูงสุด {$maxMB}MB");
                 }
             }
+
+            // เพิ่มรูปใหม่เข้าไปใน array หลัก
+            foreach ($this->newImages as $newImage) {
+                $this->uploadedImages[] = $newImage;
+            }
+
+            // Clear newImages หลังจาก append แล้ว
+            $this->newImages = [];
         }
+    }
+
+    // เพิ่ม method สำหรับลบรูป
+    public function removeImage($index)
+    {
+        unset($this->uploadedImages[$index]);
+        unset($this->imageNotes[$index]);
+
+        // Re-index arrays
+        $this->uploadedImages = array_values($this->uploadedImages);
+        $this->imageNotes = array_values($this->imageNotes);
     }
 
     // Computed Properties สำหรับ Real-time Calculation
@@ -169,9 +282,19 @@ class TradeForm extends Component
             'EURGBP' => ['pip_size' => 0.0001, 'pip_value' => 13],
         ];
 
+        // Commodities and Metals
+        $commodities = [
+            'XAUUSD' => ['pip_size' => 0.01, 'pip_value' => 1],     // ทองคำ - $1 per 0.01 movement
+            'GOLD' => ['pip_size' => 0.01, 'pip_value' => 1],       // ทองคำ (ถ้าต้องการเพิ่ม)
+            'XAGUSD' => ['pip_size' => 0.001, 'pip_value' => 5],    // เงิน (ถ้าต้องการเพิ่ม)
+            'USOIL' => ['pip_size' => 0.01, 'pip_value' => 10],     // น้ำมันดิบ (WTI)
+            'UKOIL' => ['pip_size' => 0.01, 'pip_value' => 10],     // น้ำมันดิบ (Brent)
+        ];
+
         return $majorPairs[$symbol]
             ?? $usdBasePairs[$symbol]
             ?? $crossPairs[$symbol]
+            ?? $commodities[$symbol]
             ?? ['pip_size' => 0.0001, 'pip_value' => 10]; // default
     }
 
@@ -293,19 +416,11 @@ class TradeForm extends Component
             ],
             3 => [
                 'strategy'       => 'required|string',
-                'uploadedImages' => 'nullable|array|max:' . $this->maxImages,
-                'uploadedImages.*' => 'image|max:' . ($this->maxImageSize * 1024),
+                'newImages' => 'nullable|array|max:' . $this->maxImages,
+                'newImages.*' => 'image|max:' . ($this->maxImageSize * 1024),
             ],
             default => [],
         };
-    }
-
-    public function removeImage($index)
-    {
-        unset($this->uploadedImages[$index]);
-        unset($this->imageNotes[$index]); // ลบ note ด้วย
-        $this->uploadedImages = array_values($this->uploadedImages); // reset index
-        $this->imageNotes = array_values($this->imageNotes); // reset index
     }
 
     public function submit()
@@ -404,6 +519,83 @@ class TradeForm extends Component
             // ไม่ reset ฟอร์ม เพื่อให้ user สามารถแก้ไขและส่งใหม่ได้
             return;
         }
+    }
+
+    public function resetStep1()
+    {
+        // Reset ข้อมูลพื้นฐาน
+        $this->symbol = '';
+        $this->orderType = 'buy';
+        $this->entryDate = now()->format('Y-m-d');
+        $this->entryTime = now()->format('H:i');
+        $this->exitDate = now()->format('Y-m-d');
+        $this->exitTime = now()->format('H:i');
+
+        // Clear errors
+        $this->resetErrorBag(['symbol', 'orderType', 'entryDate']);
+
+        session()->flash('info', 'ล้างข้อมูลพื้นฐานแล้ว');
+    }
+
+    public function resetStep2()
+    {
+        // Reset ข้อมูลการเทรด
+        $this->entryPrice = '';
+        $this->exitPrice = '';
+        $this->stopLoss = '';
+        $this->takeProfit = '';
+        $this->lotSize = '';
+
+        // Reset manual inputs
+        $this->manualPnl = false;
+        $this->manualPnlValue = 0;
+        $this->manualResult = false;
+        $this->manualResultValue = 'pending';
+
+        // Clear errors
+        $this->resetErrorBag(['entryPrice', 'exitPrice', 'stopLoss', 'takeProfit', 'lotSize', 'manualPnlValue']);
+
+        session()->flash('info', 'ล้างข้อมูลการเทรดแล้ว');
+    }
+
+    public function resetStep3()
+    {
+        // Reset กลยุทธ์และจิตวิทยา
+        $this->strategy = '';
+        $this->customStrategy = '';
+        $this->emotionBefore = '';
+        $this->emotionAfter = '';
+        $this->notes = '';
+
+        // Reset รูปภาพ
+        $this->uploadedImages = [];
+        $this->newImages = [];
+        $this->imageNotes = [];
+
+        // Clear errors
+        $this->resetErrorBag(['strategy', 'customStrategy', 'notes', 'uploadedImages', 'newImages']);
+
+        session()->flash('info', 'ล้างข้อมูลกลยุทธ์และรูปภาพแล้ว');
+    }
+
+    public function resetAllForm()
+    {
+        // Reset ทุกอย่าง
+        $this->reset([
+            'symbol', 'orderType', 'entryDate', 'entryTime', 'exitDate', 'exitTime',
+            'entryPrice', 'exitPrice', 'stopLoss', 'takeProfit', 'lotSize',
+            'strategy', 'customStrategy', 'emotionBefore', 'emotionAfter', 'notes',
+            'uploadedImages', 'newImages', 'imageNotes',
+            'manualPnl', 'manualPnlValue', 'manualResult', 'manualResultValue'
+        ]);
+
+        // Reset เป็นค่าเริ่มต้น
+        $this->mount();
+
+        // กลับไปหน้าแรก
+        $this->step = 1;
+
+        session()->flash('success', 'ล้างข้อมูลทั้งหมดและเริ่มต้นใหม่แล้ว');
     }
 
     public function render()

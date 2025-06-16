@@ -25,24 +25,6 @@
                     @endif
                 </p>
             </div>
-
-            <!-- Action Buttons -->
-            {{-- <div class="mt-4 lg:mt-0 flex flex-wrap gap-3">
-                <!-- Share Button -->
-                <button wire:click="toggleShare"
-                        class="px-4 py-2 {{ $trade->is_shared ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white rounded-lg transition-all duration-300 flex items-center">
-                    <i class="fas {{ $trade->is_shared ? 'fa-eye' : 'fa-share-alt' }} mr-2"></i>
-                    <span>{{ $trade->is_shared ? 'แชร์แล้ว' : 'แชร์' }}</span>
-                </button>
-
-                <!-- Delete Button -->
-                <button wire:click="deleteTrade"
-                        wire:confirm="คุณต้องการลบการเทรดนี้หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้"
-                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-300 flex items-center">
-                    <i class="fas fa-trash mr-2"></i>
-                    ลบ
-                </button>
-            </div> --}}
         </div>
 
         <!-- Trade Summary Cards -->
@@ -96,14 +78,6 @@
                     </span>
                     @endif
                 </div>
-
-                {{-- <!-- Quick Status Update -->
-                <select wire:change="updateStatus($event.target.value)" class="w-full text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 dark:bg-slate-700 dark:text-white">
-                    <option value="pending" {{ $trade->result === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="win" {{ $trade->result === 'win' ? 'selected' : '' }}>Win</option>
-                    <option value="loss" {{ $trade->result === 'loss' ? 'selected' : '' }}>Loss</option>
-                    <option value="breakeven" {{ $trade->result === 'breakeven' ? 'selected' : '' }}>Break Even</option>
-                </select> --}}
             </div>
         </div>
 
@@ -285,43 +259,36 @@
                         @foreach($trade->images as $index => $image)
                         <div class="relative group">
                             <!-- Image Container -->
-                            <div class="bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+                            <div class="bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                                 <img src="{{ env('AWS_URL', 'https://pub-16760dab33ab4d1db0e1252b4577c03e.r2.dev') . '/' . $image['path'] }}"
                                     alt="Trade Image {{ $index + 1 }}"
-                                    class="w-full h-64 object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                                    class="w-full h-64 object-cover cursor-pointer transition-all duration-300"
                                     onclick="openImageModal({{ $index }})">
 
-                                {{-- <!-- Image Overlay -->
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-full p-3">
-                                        <i class="fas fa-expand text-white text-xl"></i>
-                                    </div>
-                                </div> --}}
-
                                 <!-- Image Number Badge -->
-                                <div class="absolute top-3 left-3 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-full">
+                                <div class="absolute top-3 left-3 bg-black bg-opacity-70 text-white text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm">
                                     {{ $index + 1 }}/{{ count($trade->images) }}
                                 </div>
                             </div>
 
                             <!-- Image Note -->
                             @if(isset($image['note']) && $image['note'])
-                            <div class="mt-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                                <p class="text-sm text-slate-700 dark:text-slate-300">
-                                    <i class="fas fa-comment-alt text-blue-500 mr-2"></i>
+                            <div class="mt-3 p-4 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-800 dark:to-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                                <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                    <i class="fas fa-quote-left text-blue-500 mr-2 text-xs"></i>
                                     {{ $image['note'] }}
                                 </p>
                             </div>
                             @endif
 
                             <!-- Image Info -->
-                            <div class="mt-2 flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
-                                <span>
+                            <div class="mt-3 flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
+                                <span class="flex items-center">
                                     <i class="fas fa-calendar mr-1"></i>
                                     {{ \Carbon\Carbon::parse($image['uploaded_at'])->format('d/m/Y H:i') }}
                                 </span>
                                 @if(isset($image['size']))
-                                <span>
+                                <span class="flex items-center">
                                     <i class="fas fa-file mr-1"></i>
                                     {{ number_format($image['size'] / 1024, 1) }} KB
                                 </span>
@@ -380,30 +347,6 @@
                                         {{ ucfirst($trade->emotion_before) }}
                                     </span>
                                 </div>
-                                @php
-                                    $emotionIcon = match($trade->emotion_before) {
-                                        'confident' => 'fas fa-muscle',
-                                        'excited' => 'fas fa-rocket',
-                                        'calm' => 'fas fa-leaf',
-                                        'nervous' => 'fas fa-exclamation-triangle',
-                                        'anxious' => 'fas fa-clock',
-                                        'fearful' => 'fas fa-shield-alt',
-                                        'neutral' => 'fas fa-minus',
-                                        'focused' => 'fas fa-bullseye',
-                                        default => 'fas fa-question'
-                                    };
-                                    $emotionColor = match($trade->emotion_before) {
-                                        'confident', 'excited', 'calm' => 'text-emerald-500',
-                                        'nervous', 'anxious', 'fearful' => 'text-red-500',
-                                        'neutral', 'focused' => 'text-blue-500',
-                                        default => 'text-slate-500'
-                                    };
-                                @endphp
-                                <div class="mt-3 flex justify-end">
-                                    <div class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center">
-                                        <i class="{{ $emotionIcon }} {{ $emotionColor }} text-sm"></i>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         @endif
@@ -424,97 +367,10 @@
                                         {{ ucfirst($trade->emotion_after) }}
                                     </span>
                                 </div>
-                                @php
-                                    $emotionAfterIcon = match($trade->emotion_after) {
-                                        'satisfied' => 'fas fa-check-circle',
-                                        'happy' => 'fas fa-smile',
-                                        'proud' => 'fas fa-trophy',
-                                        'relieved' => 'fas fa-sigh',
-                                        'disappointed' => 'fas fa-frown',
-                                        'frustrated' => 'fas fa-angry',
-                                        'angry' => 'fas fa-fire',
-                                        'regretful' => 'fas fa-sad-tear',
-                                        'neutral' => 'fas fa-meh',
-                                        'learned' => 'fas fa-brain',
-                                        default => 'fas fa-question'
-                                    };
-                                    $emotionAfterColor = match($trade->emotion_after) {
-                                        'satisfied', 'happy', 'proud', 'relieved' => 'text-emerald-500',
-                                        'disappointed', 'frustrated', 'angry', 'regretful' => 'text-red-500',
-                                        'neutral', 'learned' => 'text-blue-500',
-                                        default => 'text-slate-500'
-                                    };
-                                @endphp
-                                <div class="mt-3 flex justify-end">
-                                    <div class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center">
-                                        <i class="{{ $emotionAfterIcon }} {{ $emotionAfterColor }} text-sm"></i>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         @endif
 
-                    </div>
-                    @endif
-
-                    <!-- Emotion Comparison (ถ้ามีทั้งก่อนและหลัง) -->
-                    @if($trade->emotion_before && $trade->emotion_after)
-                    <div class="mb-8">
-                        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-                            <h4 class="text-md font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center">
-                                <i class="fas fa-chart-line text-blue-600 mr-2"></i>
-                                การเปลี่ยนแปลงอารมณ์
-                            </h4>
-                            <div class="flex items-center justify-center space-x-8">
-                                <div class="text-center">
-                                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
-                                        @php
-                                            $beforeIcon = match($trade->emotion_before) {
-                                                'confident' => 'fas fa-muscle',
-                                                'excited' => 'fas fa-rocket',
-                                                'calm' => 'fas fa-leaf',
-                                                'nervous' => 'fas fa-exclamation-triangle',
-                                                'anxious' => 'fas fa-clock',
-                                                'fearful' => 'fas fa-shield-alt',
-                                                'neutral' => 'fas fa-minus',
-                                                'focused' => 'fas fa-bullseye',
-                                                default => 'fas fa-question'
-                                            };
-                                        @endphp
-                                        <i class="{{ $beforeIcon }} text-rose-600 dark:text-rose-400"></i>
-                                    </div>
-                                    <div class="text-sm text-slate-600 dark:text-slate-400">ก่อนเทรด</div>
-                                    <div class="font-medium text-slate-800 dark:text-slate-200">{{ ucfirst($trade->emotion_before) }}</div>
-                                </div>
-
-                                <div class="flex items-center text-blue-500">
-                                    <i class="fas fa-arrow-right text-xl"></i>
-                                </div>
-
-                                <div class="text-center">
-                                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                                        @php
-                                            $afterIcon = match($trade->emotion_after) {
-                                                'satisfied' => 'fas fa-check-circle',
-                                                'happy' => 'fas fa-smile',
-                                                'proud' => 'fas fa-trophy',
-                                                'relieved' => 'fas fa-sigh',
-                                                'disappointed' => 'fas fa-frown',
-                                                'frustrated' => 'fas fa-angry',
-                                                'angry' => 'fas fa-fire',
-                                                'regretful' => 'fas fa-sad-tear',
-                                                'neutral' => 'fas fa-meh',
-                                                'learned' => 'fas fa-brain',
-                                                default => 'fas fa-question'
-                                            };
-                                        @endphp
-                                        <i class="{{ $afterIcon }} text-emerald-600 dark:text-emerald-400"></i>
-                                    </div>
-                                    <div class="text-sm text-slate-600 dark:text-slate-400">หลังเทรด</div>
-                                    <div class="font-medium text-slate-800 dark:text-slate-200">{{ ucfirst($trade->emotion_after) }}</div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     @endif
 
@@ -553,255 +409,522 @@
             </a>
         </div>
 
-        <!-- Share Modal -->
-        <div x-data="{ showShareModal: false }"
-             @share-toggled.window="
-                 if ($event.detail.is_shared) {
-                     showShareModal = true;
-                     $nextTick(() => {
-                         document.getElementById('shareUrlInput').value = $event.detail.share_url;
-                     });
-                 }
-             ">
-
-            <div x-show="showShareModal"
-                 x-cloak
-                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                 @click.self="showShareModal = false">
-
-                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-share-alt text-white"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">แชร์การเทรด</h3>
-                                <p class="text-sm text-slate-600 dark:text-slate-400">คัดลอกลิงก์เพื่อแชร์</p>
-                            </div>
-                        </div>
-                        <button @click="showShareModal = false"
-                                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-
-                    <!-- Share URL -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                            <i class="fas fa-link mr-2 text-blue-600"></i>ลิงก์สำหรับแชร์
-                        </label>
-                        <div class="flex">
-                            <input type="text"
-                                   value=""
-                                   readonly
-                                   id="shareUrlInput"
-                                   class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-l-xl text-sm text-slate-800 dark:text-white font-mono">
-                            <button onclick="copyShareUrl()"
-                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-r-xl transition-all duration-300 font-medium">
-                                <i class="fas fa-copy mr-2"></i>Copy
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-3">
-                        <button @click="showShareModal = false"
-                                class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl transition-all duration-300 font-medium">
-                            ปิด
-                        </button>
-                        <button onclick="window.open(document.getElementById('shareUrlInput').value, '_blank')"
-                                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-300 font-medium">
-                            <i class="fas fa-external-link-alt mr-2"></i>
-                            ดูหน้าแชร์
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Image Modal -->
-        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4">
+        <!-- Enhanced Image Modal -->
+        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden items-center justify-center p-4">
             <!-- Close Button -->
             <button onclick="closeImageModal()"
-                    class="absolute top-4 right-4 z-10 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200">
+                    class="absolute top-4 right-4 z-30 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm">
                 <i class="fas fa-times text-xl"></i>
             </button>
 
             <!-- Navigation Buttons -->
             <button onclick="previousImage()"
                     id="prevBtn"
-                    class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200">
-                <i class="fas fa-chevron-left text-lg"></i>
+                    class="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm">
+                <i class="fas fa-chevron-left text-xl"></i>
             </button>
 
             <button onclick="nextImage()"
                     id="nextBtn"
-                    class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200">
-                <i class="fas fa-chevron-right text-lg"></i>
+                    class="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm">
+                <i class="fas fa-chevron-right text-xl"></i>
             </button>
 
-            <!-- Image Container -->
-            <div class="relative max-w-full max-h-full">
-                <img id="modalImage"
-                    src=""
-                    alt="Trade Image"
-                    class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+            <!-- Zoom Controls -->
+            <div class="absolute top-4 left-4 z-30 flex flex-col space-y-2">
+                <button onclick="zoomIn()"
+                        id="zoomInBtn"
+                        class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm">
+                    <i class="fas fa-plus text-xl"></i>
+                </button>
+                <button onclick="zoomOut()"
+                        id="zoomOutBtn"
+                        class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm">
+                    <i class="fas fa-minus text-xl"></i>
+                </button>
+                <button onclick="resetZoom()"
+                        id="resetZoomBtn"
+                        class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm">
+                    <i class="fas fa-home text-xl"></i>
+                </button>
+            </div>
 
-                <!-- Image Info -->
-                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg text-center">
-                    <p id="imageNote" class="text-sm mb-1"></p>
-                    <p id="imageCounter" class="text-xs opacity-75"></p>
+            <!-- Zoom Info -->
+            <div class="absolute bottom-4 left-4 z-30 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+                <div class="text-xs space-y-1">
+                    <div>Zoom: <span id="zoomLevel">100%</span></div>
+                    <div>Size: <span id="imageDimensions">-</span></div>
+                </div>
+            </div>
+
+            <!-- Image Counter -->
+            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+                <span id="imageCounter" class="text-sm font-medium">1 / 1</span>
+            </div>
+
+            <!-- Image Container -->
+            <div class="relative max-w-full max-h-full flex items-center justify-center overflow-hidden">
+                <div id="imageWrapper" class="transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing">
+                    <img id="modalImage"
+                        src=""
+                        alt="Trade Image"
+                        class="max-w-none h-auto object-contain rounded-lg shadow-2xl transition-all duration-300 select-none"
+                        onclick="event.stopPropagation()"
+                        draggable="false">
+                </div>
+            </div>
+
+            <!-- Image Note -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 bg-black bg-opacity-70 text-white px-6 py-3 rounded-lg backdrop-blur-sm max-w-md text-center">
+                <p id="imageNote" class="text-sm leading-relaxed">ไม่มีหมายเหตุ</p>
+            </div>
+
+            <!-- Keyboard Instructions -->
+            <div class="absolute bottom-4 right-4 z-30 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg backdrop-blur-sm text-xs">
+                <div class="space-y-1">
+                    <div><span class="bg-white bg-opacity-20 px-2 py-1 rounded font-mono text-xs">Esc</span> Close</div>
+                    <div><span class="bg-white bg-opacity-20 px-2 py-1 rounded font-mono text-xs">←→</span> Navigate</div>
+                    <div><span class="bg-white bg-opacity-20 px-2 py-1 rounded font-mono text-xs">+/-</span> Zoom</div>
+                    <div><span class="bg-white bg-opacity-20 px-2 py-1 rounded font-mono text-xs">0</span> Reset</div>
+                    <div><span class="bg-white bg-opacity-20 px-2 py-1 rounded font-mono text-xs">Wheel</span> Zoom</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-<script>
-// ข้อมูลรูปภาพจาก Laravel
-const tradeImages = @json($trade->images ?? []);
-const baseUrl = '{{ env("AWS_URL", "https://pub-16760dab33ab4d1db0e1252b4577c03e.r2.dev") }}';
+    <script>
+    // ข้อมูลรูปภาพจาก Laravel
+    const tradeImages = @json($trade->images ?? []);
+    const baseUrl = '{{ env("AWS_URL", "https://pub-16760dab33ab4d1db0e1252b4577c03e.r2.dev") }}';
 
-let currentImageIndex = 0;
+    let currentImageIndex = 0;
+    let isModalOpen = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
 
-// เปิด Modal
-function openImageModal(index) {
-    currentImageIndex = index;
-    updateModalImage();
+    // Zoom variables
+    let currentZoom = 1;
+    let maxZoom = 5;
+    let minZoom = 0.1;
+    let isDragging = false;
+    let lastPanX = 0;
+    let lastPanY = 0;
+    let startX = 0;
+    let startY = 0;
 
-    const modal = document.getElementById('imageModal');
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    // เปิด Modal
+    function openImageModal(index) {
+        currentImageIndex = index;
+        isModalOpen = true;
+        currentZoom = 1;
+        lastPanX = 0;
+        lastPanY = 0;
+        updateModalImage();
 
-    console.log('Opened image modal for index:', index);
-}
+        const modal = document.getElementById('imageModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
 
-// ปิด Modal
-function closeImageModal() {
-    const modal = document.getElementById('imageModal');
-    modal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    currentImageIndex = 0;
-}
+        // เพิ่ม animation เข้า
+        setTimeout(() => {
+            modal.style.opacity = '1';
+        }, 10);
 
-// อัพเดทรูปใน Modal
-function updateModalImage() {
-    if (!tradeImages || tradeImages.length === 0) {
-        console.log('No images available');
-        return;
+        console.log('Opened image modal for index:', index);
     }
 
-    const image = tradeImages[currentImageIndex];
-    const modalImage = document.getElementById('modalImage');
-    const imageNote = document.getElementById('imageNote');
-    const imageCounter = document.getElementById('imageCounter');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
+    // ปิด Modal
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        isModalOpen = false;
 
-    // แสดงรูปจริง
-    const imageUrl = baseUrl + '/' + image.path;
-    modalImage.src = imageUrl;
-    modalImage.alt = `Trade Image ${currentImageIndex + 1}`;
+        // เพิ่ม animation ออก
+        modal.style.opacity = '0';
 
-    // อัพเดทข้อมูล
-    imageNote.textContent = image.note || 'ไม่มีหมายเหตุ';
-    imageCounter.textContent = `${currentImageIndex + 1} / ${tradeImages.length}`;
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+            currentImageIndex = 0;
+            resetZoom();
+        }, 200);
 
-    // แสดง/ซ่อนปุ่ม navigation
-    if (tradeImages.length <= 1) {
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
-    } else {
-        prevBtn.style.display = 'flex';
-        nextBtn.style.display = 'flex';
+        console.log('Closed image modal');
     }
 
-    console.log('Updated modal image:', imageUrl);
-}
+    // อัพเดทรูปใน Modal
+    function updateModalImage() {
+        if (!tradeImages || tradeImages.length === 0) {
+            console.log('No images available');
+            return;
+        }
 
-// รูปก่อนหน้า
-function previousImage() {
-    if (tradeImages.length <= 1) return;
+        const image = tradeImages[currentImageIndex];
+        const modalImage = document.getElementById('modalImage');
+        const imageNote = document.getElementById('imageNote');
+        const imageCounter = document.getElementById('imageCounter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
 
-    currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : tradeImages.length - 1;
-    updateModalImage();
-}
+        // แสดงรูปจริง
+        const imageUrl = baseUrl + '/' + image.path;
 
-// รูปถัดไป
-function nextImage() {
-    if (tradeImages.length <= 1) return;
+        // เพิ่ม loading effect
+        modalImage.style.opacity = '0.5';
+        modalImage.src = imageUrl;
+        modalImage.alt = `Trade Image ${currentImageIndex + 1}`;
 
-    currentImageIndex = currentImageIndex < tradeImages.length - 1 ? currentImageIndex + 1 : 0;
-    updateModalImage();
-}
+        // เมื่อรูปโหลดเสร็จ
+        modalImage.onload = function() {
+            modalImage.style.opacity = '1';
+            resetZoom(); // Reset zoom เมื่อเปลี่ยนรูป
+            updateImageDimensions();
+        };
 
-// Keyboard controls
-document.addEventListener('keydown', function(e) {
-    const modal = document.getElementById('imageModal');
-    if (!modal.classList.contains('hidden')) {
+        // อัพเดทข้อมูล
+        imageNote.textContent = image.note || 'ไม่มีหมายเหตุ';
+        imageCounter.textContent = `${currentImageIndex + 1} / ${tradeImages.length}`;
+
+        // แสดง/ซ่อนปุ่ม navigation
+        if (tradeImages.length <= 1) {
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        console.log('Updated modal image:', imageUrl);
+    }
+
+    // Zoom Functions
+    function zoomIn() {
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(currentZoom * 1.2, maxZoom);
+            updateImageTransform();
+            updateZoomInfo();
+            updateCursor();
+        }
+    }
+
+    function zoomOut() {
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(currentZoom / 1.2, minZoom);
+
+            // ถ้า zoom น้อยกว่า 1 ให้ reset position
+            if (currentZoom <= 1) {
+                lastPanX = 0;
+                lastPanY = 0;
+            }
+
+            updateImageTransform();
+            updateZoomInfo();
+            updateCursor();
+        }
+    }
+
+    function resetZoom() {
+        currentZoom = 1;
+        lastPanX = 0;
+        lastPanY = 0;
+        updateImageTransform();
+        updateZoomInfo();
+        updateCursor();
+    }
+
+    function updateImageTransform() {
+        const imageWrapper = document.getElementById('imageWrapper');
+        if (imageWrapper) {
+            imageWrapper.style.transform = `scale(${currentZoom}) translate(${lastPanX}px, ${lastPanY}px)`;
+        }
+    }
+
+    function updateZoomInfo() {
+        const zoomLevel = document.getElementById('zoomLevel');
+        if (zoomLevel) {
+            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+    }
+
+    function updateImageDimensions() {
+        const modalImage = document.getElementById('modalImage');
+        const dimensionsEl = document.getElementById('imageDimensions');
+
+        if (modalImage && dimensionsEl && modalImage.naturalWidth) {
+            dimensionsEl.textContent = `${modalImage.naturalWidth} × ${modalImage.naturalHeight}px`;
+        }
+    }
+
+    function updateCursor() {
+        const imageWrapper = document.getElementById('imageWrapper');
+        if (imageWrapper) {
+            if (currentZoom > 1) {
+                imageWrapper.classList.add('cursor-grab');
+                imageWrapper.classList.remove('cursor-default');
+            } else {
+                imageWrapper.classList.remove('cursor-grab');
+                imageWrapper.classList.add('cursor-default');
+            }
+        }
+    }
+
+    // Mouse/Touch drag functionality
+    function startDrag(e) {
+        if (currentZoom <= 1) return;
+
+        isDragging = true;
+        const imageWrapper = document.getElementById('imageWrapper');
+        imageWrapper.classList.add('active:cursor-grabbing');
+
+        if (e.type === 'mousedown') {
+            startX = e.clientX - lastPanX;
+            startY = e.clientY - lastPanY;
+        } else if (e.type === 'touchstart') {
+            startX = e.touches[0].clientX - lastPanX;
+            startY = e.touches[0].clientY - lastPanY;
+        }
+
+        e.preventDefault();
+    }
+
+    function drag(e) {
+        if (!isDragging || currentZoom <= 1) return;
+
+        e.preventDefault();
+
+        if (e.type === 'mousemove') {
+            lastPanX = e.clientX - startX;
+            lastPanY = e.clientY - startY;
+        } else if (e.type === 'touchmove') {
+            lastPanX = e.touches[0].clientX - startX;
+            lastPanY = e.touches[0].clientY - startY;
+        }
+
+        updateImageTransform();
+    }
+
+    function endDrag() {
+        isDragging = false;
+        const imageWrapper = document.getElementById('imageWrapper');
+        imageWrapper.classList.remove('active:cursor-grabbing');
+    }
+
+    // รูปก่อนหน้า
+    function previousImage() {
+        if (tradeImages.length <= 1) return;
+
+        currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : tradeImages.length - 1;
+        updateModalImage();
+
+        // เพิ่ม feedback animation
+        const prevBtn = document.getElementById('prevBtn');
+        prevBtn.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            prevBtn.style.transform = 'scale(1)';
+        }, 150);
+    }
+
+    // รูปถัดไป
+    function nextImage() {
+        if (tradeImages.length <= 1) return;
+
+        currentImageIndex = currentImageIndex < tradeImages.length - 1 ? currentImageIndex + 1 : 0;
+        updateModalImage();
+
+        // เพิ่ม feedback animation
+        const nextBtn = document.getElementById('nextBtn');
+        nextBtn.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            nextBtn.style.transform = 'scale(1)';
+        }, 150);
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', function(e) {
+        if (!isModalOpen) return;
+
         switch(e.key) {
             case 'Escape':
                 closeImageModal();
                 break;
             case 'ArrowLeft':
-                if (tradeImages.length > 1) previousImage();
+                if (tradeImages.length > 1) {
+                    e.preventDefault();
+                    previousImage();
+                }
                 break;
             case 'ArrowRight':
-                if (tradeImages.length > 1) nextImage();
+                if (tradeImages.length > 1) {
+                    e.preventDefault();
+                    nextImage();
+                }
+                break;
+            case ' ': // Spacebar
+                e.preventDefault();
+                if (tradeImages.length > 1) {
+                    nextImage();
+                }
+                break;
+            case '+':
+            case '=':
+                e.preventDefault();
+                zoomIn();
+                break;
+            case '-':
+                e.preventDefault();
+                zoomOut();
+                break;
+            case '0':
+                e.preventDefault();
+                resetZoom();
                 break;
         }
-    }
-});
-
-// Touch/Swipe support
-let touchStartX = 0;
-let touchStartY = 0;
-
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('imageModal');
-
-    modal.addEventListener('touchstart', function(e) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
     });
 
-    modal.addEventListener('touchend', function(e) {
-        if (!touchStartX || !touchStartY) return;
+    // เมื่อ DOM โหลดเสร็จ
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('imageModal');
+        const imageWrapper = document.getElementById('imageWrapper');
 
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
+        // เพิ่ม transition styles
+        modal.style.transition = 'opacity 0.2s ease-in-out';
+        modal.style.opacity = '0';
 
-        const diffX = touchStartX - touchEndX;
-        const diffY = touchStartY - touchEndY;
+        // Mouse events สำหรับ drag
+        imageWrapper.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
 
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-            if (diffX > 0 && tradeImages.length > 1) {
-                nextImage();
-            } else if (diffX < 0 && tradeImages.length > 1) {
-                previousImage();
-            }
-        }
+        // Touch events สำหรับ drag
+        imageWrapper.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('touchend', endDrag);
 
-        touchStartX = 0;
-        touchStartY = 0;
-    });
+        // Mouse wheel zoom
+        modal.addEventListener('wheel', function(e) {
+            if (!isModalOpen) return;
 
-    modal.addEventListener('touchmove', function(e) {
-        if (!modal.classList.contains('hidden')) {
             e.preventDefault();
-        }
+
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        }, { passive: false });
+
+        // Touch/Swipe support สำหรับ navigation (ไม่ใช่ zoom)
+        let isNavigationSwipe = false;
+
+        modal.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1 && currentZoom <= 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                isNavigationSwipe = true;
+            }
+        }, { passive: true });
+
+        modal.addEventListener('touchend', function(e) {
+            if (!isNavigationSwipe || !touchStartX || !touchStartY) return;
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+
+            // ตรวจสอบว่าเป็นการ swipe แนวนอนและระยะทางเพียงพอ
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50 && currentZoom <= 1) {
+                if (diffX > 0 && tradeImages.length > 1) {
+                    nextImage();
+                } else if (diffX < 0 && tradeImages.length > 1) {
+                    previousImage();
+                }
+            }
+
+            touchStartX = 0;
+            touchStartY = 0;
+            isNavigationSwipe = false;
+        }, { passive: true });
+
+        // คลิกนอกรูปเพื่อปิด modal
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeImageModal();
+            }
+        });
+
+        // เพิ่ม transition styles สำหรับ modal image
+        const modalImage = document.getElementById('modalImage');
+        modalImage.style.transition = 'opacity 0.3s ease-in-out';
+
+        // เพิ่ม transition styles สำหรับปุ่ม
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const resetZoomBtn = document.getElementById('resetZoomBtn');
+
+        [prevBtn, nextBtn, zoomInBtn, zoomOutBtn, resetZoomBtn].forEach(btn => {
+            if (btn) btn.style.transition = 'all 0.15s ease-in-out';
+        });
+
+        // เพิ่ม hover effects สำหรับ thumbnail images
+        const thumbnails = document.querySelectorAll('[onclick*="openImageModal"]');
+        thumbnails.forEach(thumbnail => {
+            thumbnail.style.transition = 'all 0.3s ease-in-out';
+
+            thumbnail.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+            });
+
+            thumbnail.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            });
+        });
+
+        console.log('Enhanced Trade Image Modal with Zoom Ready! 📸🔍');
+        console.log('Found', tradeImages.length, 'images');
+        console.log('Features: Zoom, Pan, Keyboard navigation, Touch/Swipe, Smooth animations');
     });
 
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeImageModal();
-        }
-    });
+    // เพิ่มฟังก์ชันสำหรับ copy share URL (ถ้ามี)
+    function copyShareUrl() {
+        const urlInput = document.getElementById('shareUrlInput');
+        if (urlInput) {
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(urlInput.value).then(function() {
+                const button = event.target.closest('button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+                button.classList.add('bg-green-600');
 
-    console.log('Trade Image Modal Ready! 📸');
-    console.log('Found', tradeImages.length, 'images');
-});
-</script>
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('bg-green-600');
+                }, 2000);
+            }).catch(function() {
+                document.execCommand('copy');
+            });
+        }
+    }
+
+    // Preload images สำหรับ performance ที่ดีขึ้น
+    function preloadImages() {
+        if (tradeImages && tradeImages.length > 0) {
+            tradeImages.forEach((image, index) => {
+                const img = new Image();
+                img.src = baseUrl + '/' + image.path;
+            });
+            console.log('Preloaded', tradeImages.length, 'images for faster viewing');
+        }
+    }
+
+    // เรียก preload เมื่อหน้าโหลดเสร็จ
+    window.addEventListener('load', preloadImages);
+    </script>
 </div>

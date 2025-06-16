@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('trades', function (Blueprint $table) {
+        /* Schema::table('trades', function (Blueprint $table) {
             // เพิ่มเฉพาะ columns ที่ยังไม่มี (เนื่องจากมี is_shared อยู่แล้ว)
             $table->string('share_token', 64)->nullable()->unique()->after('id');
             $table->boolean('is_public')->default(false)->after('is_shared');
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->index(['is_public', 'shared_at']);
             $table->index(['is_shared', 'shared_at']);
             $table->index('share_token');
-        });
+        }); */
     }
 
     /**
