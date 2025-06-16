@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+<<<<<<< HEAD
     <title>@yield('title', '#1 Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
     <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/x-icon">
+=======
+    <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/png">
+    <title>@yield('title', '#2 Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
+>>>>>>> dev-keaykub
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

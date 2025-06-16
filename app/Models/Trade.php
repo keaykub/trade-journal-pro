@@ -43,5 +43,15 @@ class Trade extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getFormattedEntryDateAttribute()
+    {
+        return $this->entry_date ? \Carbon\Carbon::parse($this->entry_date)->format('Y-m-d') : null;
+    }
+
+    public function getFormattedExitDateAttribute()
+    {
+        return $this->exit_date ? \Carbon\Carbon::parse($this->exit_date)->format('Y-m-d') : null;
+    }
 }
 

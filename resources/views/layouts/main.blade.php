@@ -4,16 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/png">
 
-    <title>{{ config('app.name', 'Trade Journal') }}</title>
+    <title>@yield('title', 'WickFill Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <script>
         if (
             localStorage.getItem('darkMode') === 'true' ||
@@ -54,8 +56,10 @@
     </script>
 
     <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { font-family: 'Inter', sans-serif; }
         .sidebar-transition { transition: all 0.3s ease; }
         .theme-transition { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
 
@@ -182,22 +186,23 @@
         </nav>
 
         <!-- Upgrade Section (แสดงเฉพาะ Free Plan) -->
-        @if(auth()->user()->isFree())
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-            <a href="{{ route('pricing') }}"
-               class="block w-full p-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all transform hover:scale-105 upgrade-glow">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-crown text-yellow-300"></i>
+        @if(auth()->user()->subscribed('default') && auth()->user()->subscription('default')->valid())
+        @else
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                <a href="{{ route('pricing') }}"
+                class="block w-full p-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all transform hover:scale-105 upgrade-glow">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-crown text-yellow-300"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-bold text-sm">Upgrade to Pro</div>
+                            <div class="text-xs text-blue-100">ปลดล็อคฟีเจอร์ทั้งหมด</div>
+                        </div>
+                        <i class="fas fa-arrow-right"></i>
                     </div>
-                    <div class="flex-1">
-                        <div class="font-bold text-sm">Upgrade to Pro</div>
-                        <div class="text-xs text-blue-100">ปลดล็อคฟีเจอร์ทั้งหมด</div>
-                    </div>
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
         @endif
 
         <!-- User Info Section -->
@@ -211,16 +216,22 @@
                         {{ auth()->user()->first_name ?? auth()->user()->name ?? 'User' }}
                     </p>
                     <div class="flex items-center space-x-2">
-                        @if(auth()->user()->isPremium())
-                            <span class="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 px-2 py-0.5 rounded text-xs font-semibold">
-                                <i class="fas fa-gem mr-1"></i>Premium
+                        @php
+                            $plan = auth()->user()?->subscription('default')?->stripe_price;
+                        @endphp
+
+                        @if ($plan === 'price_XXXXX_PREMIUM')
+                            <span class="inline-flex items-center bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 px-2 py-0.5 rounded text-xs font-semibold">
+                                <i class="fas fa-gem mr-1"></i> Premium
                             </span>
-                        @elseif(auth()->user()->isPro())
-                            <span class="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 px-2 py-0.5 rounded text-xs font-semibold">
-                                <i class="fas fa-crown mr-1"></i>Pro
+                        @elseif ($plan === 'price_1RaTBgEHe4TIzmz4ZoEJVTXf')
+                            <span class="inline-flex items-center bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 px-2 py-0.5 rounded text-xs font-semibold">
+                                <i class="fas fa-crown mr-1"></i> Pro
                             </span>
                         @else
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Free Plan</span>
+                            <span class="inline-flex items-center text-gray-500 dark:text-gray-400 text-xs font-medium">
+                                Free Plan
+                            </span>
                         @endif
                     </div>
                 </div>
@@ -289,14 +300,7 @@
                         </template>
                     </button>
 
-                    <!-- Notifications -->
-                    <button class="relative p-2 rounded-lg transition-colors text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i class="fas fa-bell text-sm"></i>
-                        @if(auth()->user()->isFree())
-                            <!-- จุดแจ้งเตือนสำหรับ Free Plan -->
-                            <span class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-                        @endif
-                    </button>
+                    <livewire:notification-dropdown />
 
                     <!-- Quick Actions (เฉพาะเดสก์ท็อป) -->
                     <div class="hidden md:flex items-center space-x-2">

@@ -4,8 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>การเทรดที่แชร์ - {{ $trade->symbol }}</title>
+    <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom styles for zoom functionality */
+        .zoom-container {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .zoom-container:active {
+            cursor: grabbing;
+        }
+
+        .zoom-image {
+            transition: transform 0.2s ease-in-out;
+            transform-origin: center center;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .zoom-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 20;
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-2xl">
@@ -222,13 +283,6 @@
                                      alt="Trade Image {{ $index + 1 }}"
                                      class="w-full h-64 object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
                                      onclick="openImageModal({{ $index }})">
-
-                                <!-- Image Overlay -->
-                                {{-- <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <i class="fas fa-expand text-white text-2xl"></i>
-                                    </div>
-                                </div> --}}
                             </div>
 
                             <!-- Image Note -->
@@ -285,45 +339,71 @@
         </div>
     </div>
 
-    <!-- Image Modal -->
-    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-        <div class="relative max-w-5xl max-h-full p-4">
+    <!-- Image Modal with Zoom -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 hidden">
+        <div class="relative w-full h-full">
             <!-- Close Button -->
             <button onclick="closeImageModal()"
-                    class="absolute top-4 right-4 z-10 w-10 h-10 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-300">
-                <i class="fas fa-times text-lg"></i>
+                    class="absolute top-4 right-4 z-30 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-300">
+                <i class="fas fa-times text-xl"></i>
             </button>
+
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button onclick="zoomIn()" class="zoom-btn" title="ขยายภาพ">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button onclick="zoomOut()" class="zoom-btn" title="ย่อภาพ">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button onclick="resetZoom()" class="zoom-btn" title="รีเซ็ต">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+            </div>
+
+            <!-- Zoom Info -->
+            <div class="zoom-info">
+                <span id="zoomLevel">100%</span>
+            </div>
 
             <!-- Navigation Buttons -->
             <button onclick="previousImage()"
-                    class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-300"
+                    class="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-300"
                     id="prevBtn">
                 <i class="fas fa-chevron-left text-lg"></i>
             </button>
 
             <button onclick="nextImage()"
-                    class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-300"
+                    class="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all duration-300"
                     id="nextBtn">
                 <i class="fas fa-chevron-right text-lg"></i>
             </button>
 
-            <!-- Main Image -->
-            <img id="modalImage"
-                 src=""
-                 alt="Trade Image"
-                 class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+            <!-- Image Container -->
+            <div id="imageContainer" class="zoom-container w-full h-full flex items-center justify-center">
+                <img id="modalImage"
+                     src=""
+                     alt="Trade Image"
+                     class="zoom-image max-w-none max-h-none select-none"
+                     draggable="false">
+            </div>
 
             <!-- Image Info -->
-            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg">
-                <p id="imageNote" class="text-sm text-center"></p>
-                <p id="imageCounter" class="text-xs text-center mt-1 opacity-75"></p>
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white px-6 py-3 rounded-lg">
+                <p id="imageNote" class="text-sm text-center mb-1"></p>
+                <p id="imageCounter" class="text-xs text-center opacity-75"></p>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript สำหรับ Image Modal -->
+    <!-- JavaScript สำหรับ Image Modal และ Zoom -->
     <script>
         let currentImageIndex = 0;
+        let currentZoom = 1;
+        let isDragging = false;
+        let dragStart = {x: 0, y: 0};
+        let imagePosition = {x: 0, y: 0};
+
         // แปลง images data อย่างปลอดภัย
         let images = [];
 
@@ -335,6 +415,7 @@
 
         function openImageModal(index) {
             currentImageIndex = index;
+            resetZoom();
             showImage();
             document.getElementById('imageModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -343,6 +424,7 @@
         function closeImageModal() {
             document.getElementById('imageModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
+            resetZoom();
         }
 
         function showImage() {
@@ -367,6 +449,9 @@
             // แสดง/ซ่อนปุ่มนำทาง
             prevBtn.style.display = images.length > 1 ? 'flex' : 'none';
             nextBtn.style.display = images.length > 1 ? 'flex' : 'none';
+
+            // รีเซ็ตตำแหน่งเมื่อเปลี่ยนรูป
+            resetZoom();
         }
 
         function previousImage() {
@@ -387,6 +472,98 @@
             showImage();
         }
 
+        // Zoom Functions
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 5);
+            updateImageTransform();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.1);
+            updateImageTransform();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            imagePosition = {x: 0, y: 0};
+            updateImageTransform();
+        }
+
+        function updateImageTransform() {
+            const modalImage = document.getElementById('modalImage');
+            const zoomLevel = document.getElementById('zoomLevel');
+
+            modalImage.style.transform = `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${currentZoom})`;
+            zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        // Mouse Wheel Zoom
+        document.getElementById('imageContainer').addEventListener('wheel', function(e) {
+            e.preventDefault();
+
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+
+        // Drag Functionality
+        const imageContainer = document.getElementById('imageContainer');
+        const modalImage = document.getElementById('modalImage');
+
+        modalImage.addEventListener('mousedown', function(e) {
+            if (currentZoom > 1) {
+                isDragging = true;
+                dragStart.x = e.clientX - imagePosition.x;
+                dragStart.y = e.clientY - imagePosition.y;
+                imageContainer.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging && currentZoom > 1) {
+                imagePosition.x = e.clientX - dragStart.x;
+                imagePosition.y = e.clientY - dragStart.y;
+                updateImageTransform();
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                imageContainer.style.cursor = currentZoom > 1 ? 'grab' : 'default';
+            }
+        });
+
+        // Touch Events for Mobile
+        let touchStartDistance = 0;
+        let touchStartZoom = 1;
+
+        modalImage.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                touchStartDistance = getTouchDistance(e.touches);
+                touchStartZoom = currentZoom;
+                e.preventDefault();
+            }
+        });
+
+        modalImage.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2) {
+                const currentDistance = getTouchDistance(e.touches);
+                const scale = currentDistance / touchStartDistance;
+                currentZoom = Math.max(0.1, Math.min(5, touchStartZoom * scale));
+                updateImageTransform();
+                e.preventDefault();
+            }
+        });
+
+        function getTouchDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
         // Keyboard navigation
         document.addEventListener('keydown', function(e) {
             const modal = document.getElementById('imageModal');
@@ -401,16 +578,43 @@
                     case 'ArrowRight':
                         if (images.length > 1) nextImage();
                         break;
+                    case '+':
+                    case '=':
+                        zoomIn();
+                        break;
+                    case '-':
+                        zoomOut();
+                        break;
+                    case '0':
+                        resetZoom();
+                        break;
                 }
             }
         });
 
         // Click outside to close
         document.getElementById('imageModal').addEventListener('click', function(e) {
-            if (e.target === this) {
+            if (e.target === this || e.target === document.getElementById('imageContainer')) {
                 closeImageModal();
             }
         });
+
+        // Update cursor based on zoom level
+        function updateCursor() {
+            const container = document.getElementById('imageContainer');
+            if (currentZoom > 1) {
+                container.style.cursor = isDragging ? 'grabbing' : 'grab';
+            } else {
+                container.style.cursor = 'default';
+            }
+        }
+
+        // Call updateCursor when zoom changes
+        const originalUpdateImageTransform = updateImageTransform;
+        updateImageTransform = function() {
+            originalUpdateImageTransform();
+            updateCursor();
+        };
     </script>
 </body>
 </html>

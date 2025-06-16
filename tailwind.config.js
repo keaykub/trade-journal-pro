@@ -16,6 +16,9 @@ export default {
             fontFamily: {
                 sans: ['Kanit', ...defaultTheme.fontFamily.sans],
             },
+            /* screens: {
+                'zoomed': { 'max-width': '1400px' },
+            }, */
         },
     },
 

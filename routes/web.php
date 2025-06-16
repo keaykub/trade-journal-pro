@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\PublicTradeController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\CleanupController;
+use App\Http\Controllers\SubscriptionController;
+use Laravel\Cashier\Http\Controllers\WebhookController;
 
 // ============================================
 // PUBLIC ROUTES (No Authentication Required)
@@ -131,16 +133,21 @@ Route::middleware(['throttle:10,1'])->group(function () {
     })->name('logout');
 });
 
-
 // ============================================
 // PAYMENT ROUTES (Heavy Rate Limiting)
 // ============================================
 
-Route::middleware(['auth', 'throttle:3,5'])->group(function () {
-    Route::post('/pricing/check-slip', [PricingController::class, 'checkSlip'])
-        ->name('pricing.check-slip');
-});
+/* Route::middleware(['auth', 'throttle:3,5'])->group(function () {
+    Route::get('/plans/confirm', [SubscriptionController::class, 'showConfirmation'])->middleware('auth');
+    Route::post('/plans/subscribe', [SubscriptionController::class, 'subscribe'])->middleware('auth');
+}); */
+/* Route::get('/plans/confirm', [SubscriptionController::class, 'showConfirmation'])->middleware('auth');
+Route::post('/plans/subscribe', [SubscriptionController::class, 'subscribe'])->middleware('auth');
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('plans.subscribe')->middleware('auth');
+Route::post('/checkout/redirect', [SubscriptionController::class, 'redirectToStripeCheckout'])->middleware('auth'); */
 
+Route::post('/checkout/redirect', [SubscriptionController::class, 'redirectToStripeCheckout'])->middleware('auth');
+Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook']);
 // ============================================
 // AUTHENTICATED USER ROUTES
 // ============================================
@@ -159,6 +166,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/settings', App\Livewire\UserSettings::class)
         ->name('settings');
+
+    Route::get('/trades/{id}/edit', App\Livewire\TradeEditForm::class)->name('trades.edit');
 
     // Trade detail view
     Route::get('/trades/{id}', App\Livewire\TradeDetail::class)
@@ -206,6 +215,21 @@ Route::view('profile', 'profile')
 // delete old temp images
 Route::get('cleanup/temp-images', [CleanupController::class, 'clearAllTempImages'])
     ->middleware('throttle:5,60');
+
+
+/* Route::get('/test-middleware', function() {
+    return 'Middleware working! Email verified: ' . (auth()->user()->hasVerifiedEmail() ? 'YES' : 'NO');
+})->middleware(['auth', 'verified']); */
+
+Route::get('/delete-user/{id}', function($id) {
+    $user = User::find($id);
+    if ($user) {
+        $user->delete();
+        return 'User deleted successfully!';
+    }
+    return 'User not found';
+});
+
 
 
 require __DIR__.'/auth.php';
