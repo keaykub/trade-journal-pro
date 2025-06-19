@@ -12,10 +12,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
         if (
             localStorage.getItem('darkMode') === 'true' ||
@@ -224,7 +226,7 @@
                             <span class="inline-flex items-center bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 px-2 py-0.5 rounded text-xs font-semibold">
                                 <i class="fas fa-gem mr-1"></i> Premium
                             </span>
-                        @elseif ($plan === 'price_1RaTBgEHe4TIzmz4ZoEJVTXf')
+                        @elseif ($plan === 'price_1RaIueCZi1bmUwYslJWl6shH')
                             <span class="inline-flex items-center bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 px-2 py-0.5 rounded text-xs font-semibold">
                                 <i class="fas fa-crown mr-1"></i> Pro
                             </span>

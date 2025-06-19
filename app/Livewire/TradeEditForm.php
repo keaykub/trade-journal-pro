@@ -36,16 +36,103 @@ class TradeEditForm extends Component
     // Helper method สำหรับจำกัดจำนวนรูป
     public function getMaxImagesProperty()
     {
-        return auth()->user()->isFree() ? 3 : 10;
+        $user = auth()->user();
+
+        // Cache subscription data for 5 minutes
+        $cacheKey = "user_subscription_limits_{$user->id}";
+
+        $subscriptionData = cache()->remember($cacheKey, 300, function () use ($user) {
+            $activeSubscription = $user->subscriptions()
+                ->where('stripe_status', 'active')
+                ->first();
+
+            return [
+                'has_subscription' => (bool) $activeSubscription,
+                'price_id' => $activeSubscription->stripe_price ?? null,
+                'plan_type' => $this->determinePlanType($activeSubscription),
+            ];
+        });
+
+        if (!$subscriptionData['has_subscription']) {
+            return 3; // Free plan
+        }
+
+        $limits = [
+            'price_1RaIueCZi1bmUwYslJWl6shH' => 10, // ProPlan รายเดือน
+            'price_basic_monthly' => 10,
+            'price_pro_monthly' => 10,
+            'price_premium_monthly' => 10,
+        ];
+
+        return $limits[$subscriptionData['price_id']] ?? 10;
     }
 
     public function getMaxImageSizeProperty()
     {
-        return auth()->user()->isFree() ? 1024 : 2048;
+        $user = auth()->user();
+        $cacheKey = "user_subscription_limits_{$user->id}";
+
+        $subscriptionData = cache()->get($cacheKey);
+
+        // ถ้าไม่มีใน cache ให้ดึงใหม่
+        if (!$subscriptionData) {
+            $activeSubscription = $user->subscriptions()
+                ->where('stripe_status', 'active')
+                ->first();
+
+            $subscriptionData = [
+                'has_subscription' => (bool) $activeSubscription,
+                'price_id' => $activeSubscription->stripe_price ?? null,
+            ];
+
+            cache()->put($cacheKey, $subscriptionData, 300);
+        }
+
+        if (!$subscriptionData['has_subscription']) {
+            return 1024; // Free plan - 1MB
+        }
+
+        $limits = [
+            'price_1RaIueCZi1bmUwYslJWl6shH' => 3072, // ProPlan - 3MB
+            'price_basic_monthly' => 2048,            // Basic - 2MB
+            'price_pro_monthly' => 5120,              // Pro - 5MB
+            'price_premium_monthly' => 10240,         // Premium - 10MB
+        ];
+
+        return $limits[$subscriptionData['price_id']] ?? 2048;
+    }
+
+    private function determinePlanType($subscription)
+    {
+        if (!$subscription) {
+            return 'free';
+        }
+
+        $priceId = $subscription->stripe_price;
+
+        $planTypes = [
+            'price_1RaIueCZi1bmUwYslJWl6shH' => 'pro',
+            'price_basic_monthly' => 'basic',
+            'price_pro_monthly' => 'pro',
+            'price_premium_monthly' => 'premium',
+        ];
+
+        return $planTypes[$priceId] ?? 'basic';
+    }
+
+    public function clearSubscriptionCache()
+    {
+        $user = auth()->user();
+        $cacheKey = "user_subscription_limits_{$user->id}";
+        cache()->forget($cacheKey);
     }
 
     protected function rules()
     {
+        // คำนวณจำนวนรูปรวม
+        $remainingExistingImages = count($this->existingImages) - count($this->imagesToDelete);
+        $maxNewImages = max(0, $this->maxImages - $remainingExistingImages);
+
         return [
             'symbol'      => 'required|string|max:20',
             'orderType'   => 'required|in:buy,sell',
@@ -54,7 +141,7 @@ class TradeEditForm extends Component
             'strategy'    => 'required|string',
             'manualPnlValue' => 'nullable|numeric|between:-999999,999999',
             'notes'      => 'nullable|string|max:500',
-            'uploadedImages' => 'nullable|array|max:' . $this->maxImages,
+            'uploadedImages' => "nullable|array|max:{$maxNewImages}", // ใช้จำนวนที่คำนวณแล้ว
             'uploadedImages.*' => 'image|mimes:jpg,jpeg,png,webp|max:' . $this->maxImageSize,
             'imageNotes.*' => 'nullable|string|max:255',
         ];
@@ -62,13 +149,31 @@ class TradeEditForm extends Component
 
     protected function messages()
     {
-        $planName = auth()->user()->isFree() ? 'Free' : 'Pro/Premium';
+        $planName = auth()->user()->subscribed() ? 'Premium' : 'Free';
+        $remainingExistingImages = count($this->existingImages) - count($this->imagesToDelete);
+        $maxNewImages = max(0, $this->maxImages - $remainingExistingImages);
 
         return [
             'manualPnlValue.between' => 'P&L ต้องอยู่ระหว่าง -$999,999 ถึง $999,999',
             'manualPnlValue.numeric' => 'P&L ต้องเป็นตัวเลขเท่านั้น',
-            'uploadedImages.max' => "แผน {$planName} อัพโหลดได้สูงสุด {$this->maxImages} รูป",
+            'uploadedImages.max' => "แผน {$planName} อัพโหลดได้สูงสุด {$this->maxImages} รูป (มีรูปเดิม {$remainingExistingImages} รูป สามารถเพิ่มได้อีก {$maxNewImages} รูป)",
             'uploadedImages.*.max' => "แผน {$planName} ไฟล์ขนาดสูงสุด " . ($this->maxImageSize / 1024) . "MB",
+        ];
+    }
+
+    public function getImageUsageStatusProperty()
+    {
+        $remainingExistingImages = count($this->existingImages) - count($this->imagesToDelete);
+        $newImagesCount = count($this->uploadedImages);
+        $totalUsed = $remainingExistingImages + $newImagesCount;
+
+        return [
+            'existing' => $remainingExistingImages,
+            'new' => $newImagesCount,
+            'total_used' => $totalUsed,
+            'max_allowed' => $this->maxImages,
+            'remaining' => $this->remainingImageSlots,
+            'can_upload_more' => $this->canUploadMoreImages()
         ];
     }
 
@@ -142,14 +247,16 @@ class TradeEditForm extends Component
                     // แก้ไข URL ให้เป็น full URL
                     $imageUrl = $image['url'] ?? '';
 
-                    // ถ้า URL ไม่มี domain ให้เพิ่ม
+                    // แก้ไข escaped slash และเพิ่ม domain
+                    $imageUrl = str_replace('\/', '/', $imageUrl);
+
                     if (!str_starts_with($imageUrl, 'http')) {
                         $imageUrl = env('AWS_URL') . '/' . ltrim($imageUrl, '/');
                     }
 
                     $this->existingImages[] = [
                         'id' => $index,
-                        'url' => $imageUrl, // ← ใช้ URL ที่แก้ไขแล้ว
+                        'url' => $imageUrl,
                         'filename' => $image['filename'] ?? '',
                         'note' => $image['note'] ?? '',
                         'path' => $image['path'] ?? '',
@@ -160,9 +267,6 @@ class TradeEditForm extends Component
 
                     $this->imageNotes[$index] = $image['note'] ?? '';
                 }
-
-                // Debug: ตรวจสอบ URL ใหม่
-                \Log::info('Fixed first image URL: ' . ($this->existingImages[0]['url'] ?? 'none'));
             }
         }
     }
@@ -256,16 +360,53 @@ class TradeEditForm extends Component
 
     public function updatedUploadedImages()
     {
-        // เช็คจำนวนรูปรวม (existing + new)
-        $totalImages = count($this->existingImages) + count($this->uploadedImages);
+        // คำนวณจำนวนรวมทั้งหมด
+        $remainingExistingImages = count($this->existingImages) - count($this->imagesToDelete);
+        $maxAllowedNew = max(0, $this->maxImages - $remainingExistingImages);
 
-        if ($totalImages > $this->maxImages) {
-            $this->addError('uploadedImages', "แผน " . (auth()->user()->isFree() ? 'Free' : 'Pro/Premium') . " อัพโหลดได้สูงสุด {$this->maxImages} รูป (รวมรูปเดิม)");
-            return;
+        \Log::info('Remaining existing images: ' . $remainingExistingImages);
+
+        // ตัดรูปเกินออก
+        if (count($this->uploadedImages) > $maxAllowedNew) {
+            $this->uploadedImages = array_slice($this->uploadedImages, 0, $maxAllowedNew);
+            \Log::info('Trimmed uploaded images to max allowed: ' . $maxAllowedNew);
+            $this->addError('uploadedImages', "อัปโหลดได้อีกสูงสุด {$maxAllowedNew} รูป");
         }
 
+        // เคลียร์ error เดิม
+        $this->resetValidation(['uploadedImages', 'uploadedImages.*']);
+
+        // Validate รวม
         $this->validateOnly('uploadedImages');
-        $this->validateOnly('uploadedImages.*');
+
+        // Validate รายไฟล์ + ตรวจขนาด
+        foreach ($this->uploadedImages as $index => $image) {
+            try {
+                $this->validateOnly("uploadedImages.{$index}");
+
+                if ($image && $image->getSize() > $this->maxImageSize * 1024) {
+                    $maxMB = $this->maxImageSize / 1024;
+                    $this->addError("uploadedImages.{$index}", "ไฟล์เกินขนาดสูงสุด {$maxMB}MB");
+                }
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $this->addError("uploadedImages.{$index}", 'รูปภาพไม่ถูกต้อง');
+            }
+        }
+    }
+
+
+    public function getRemainingImageSlotsProperty()
+    {
+        $remainingExistingImages = count($this->existingImages) - count($this->imagesToDelete);
+        $newImagesCount = count($this->uploadedImages);
+        $usedSlots = $remainingExistingImages + $newImagesCount;
+
+        return max(0, $this->maxImages - $usedSlots);
+    }
+
+    public function canUploadMoreImages()
+    {
+        return $this->remainingImageSlots > 0;
     }
 
     // Computed Properties (เหมือนเดิม)
@@ -455,6 +596,14 @@ class TradeEditForm extends Component
             if (isset($this->imageNotes[$index])) {
                 unset($this->imageNotes[$index]);
                 $this->imageNotes = array_values($this->imageNotes);
+            }
+
+            // ล้าง error ถ้ามี
+            $this->resetErrorBag('uploadedImages');
+
+            // แจ้งเตือนว่าสามารถอัพโหลดเพิ่มได้
+            if ($this->remainingImageSlots > 0) {
+                session()->flash('info', "สามารถอัพโหลดรูปเพิ่มได้อีก {$this->remainingImageSlots} รูป");
             }
         }
     }
@@ -687,7 +836,7 @@ public function checkCriticalChanges()
             'description' => 'แก้ไขข้อมูลการเทรดของคุณ'
         ]);
 
-        return view('livewire.trade-edit-form')
+        return view('livewire.create-trade')
             ->layout('layouts.main');
     }
 }

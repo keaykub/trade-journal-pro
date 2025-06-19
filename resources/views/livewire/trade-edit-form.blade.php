@@ -1702,4 +1702,3 @@ function handleDrop(event) {
 }
 </script>
 </div>
-

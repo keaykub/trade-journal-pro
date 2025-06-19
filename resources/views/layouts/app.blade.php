@@ -1,16 +1,12 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-<<<<<<< HEAD
+
     <title>@yield('title', '#1 Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
     <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/x-icon">
-=======
-    <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/png">
-    <title>@yield('title', '#2 Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
->>>>>>> dev-keaykub
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +18,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Fonts -->
-    {{-- <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"> --}}
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -90,16 +85,6 @@
         .focus-ring:focus {
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
-        }
-
-        /* Card hover effect */
-        .card-hover {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .card-hover {

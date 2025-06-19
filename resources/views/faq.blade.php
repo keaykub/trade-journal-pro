@@ -69,7 +69,6 @@
         </div>
     </section>
 
-    {{-- @include('partials.faq-stats') --}}
     @include('partials.faq-support')
     @include('partials.footer')
 @endsection

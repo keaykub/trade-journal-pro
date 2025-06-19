@@ -6,12 +6,17 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Trade;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use App\Jobs\ExportTradesJob;
+use Illuminate\Support\Facades\Storage;
+
 
 class Dashboard extends Component
 {
     use WithPagination;
 
     // Search and Filter Properties
+    public bool $exporting = false;
     public $search = '';
     public $dateFrom = '';
     public $dateTo = '';
@@ -105,8 +110,77 @@ class Dashboard extends Component
 
     public function exportTrades()
     {
-        // TODO: Implement export functionality
-        session()->flash('info', 'Export feature coming soon!');
+        $user = auth()->user();
+
+        $key = "export_count_user_{$user->id}";
+        $limit = 3;
+        $count = Cache::get($key, 0);
+
+        if ($count >= $limit) {
+            $this->js(<<<'JS'
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: {
+                        message: "คุณสามารถ export ได้ไม่เกิน 3 ครั้งต่อชั่วโมง",
+                        type: "error"
+                    }
+                }));
+            JS);
+            return;
+        }
+
+        Cache::put($key, $count + 1, now()->addHour());
+
+        // ลบ cache เก่าก่อน (ถ้ามี)
+        Cache::forget("user:{$user->id}:export_ready");
+
+        $this->exporting = true;
+        ExportTradesJob::dispatch($user);
+
+        $this->js(<<<'JS'
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    message: "ระบบกำลังจัดเตรียมไฟล์ export กรุณารอสักครู่...",
+                    type: "info"
+                }
+            }));
+
+            // เริ่มตรวจสอบไฟล์ทุก 2 วินาที
+            window.exportCheckInterval = setInterval(() => {
+                $wire.checkExportReady();
+            }, 2000);
+        JS);
+    }
+
+    public function checkExportReady()
+    {
+        if (! $this->exporting) return;
+
+        $user = auth()->user();
+        $cacheKey = "user:{$user->id}:export_ready";
+        $path = Cache::get($cacheKey);
+
+        if ($path && Storage::disk('public')->exists($path)) {
+            Cache::forget($cacheKey);
+
+            $this->exporting = false; // หยุดเช็ก
+            $downloadUrl = asset('storage/' . $path);
+
+            $this->js(<<<JS
+                (function() {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: {
+                            message: "ไฟล์พร้อมดาวน์โหลดแล้ว!",
+                            type: "success"
+                        }
+                    }));
+                    window.dispatchEvent(new CustomEvent('download-file', {
+                        detail: {
+                            url: "{$downloadUrl}"
+                        }
+                    }));
+                })();
+            JS);
+        }
     }
 
     public function deleteTrade($tradeId)

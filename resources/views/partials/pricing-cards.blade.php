@@ -203,30 +203,8 @@
                     </div>
 
                     @auth
-                        @if(auth()->user()->hasActiveSubscription())
-                            {{-- <a href="{{ route('dashboard') }}"
-                            class="block w-full bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all duration-300 text-center text-sm sm:text-base">
-                                ไปยังหน้าแดชบอร์ด
-                            </a> --}}
-                            <button disabled
-                                class="block w-full bg-blue-300 text-white font-bold py-3 sm:py-4 rounded-full cursor-not-allowed text-center relative text-sm sm:text-base">
-                            <span class="opacity-60">เลือกแผนพรีเมียม</span>
-                            <span class="absolute top-1 right-3 bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                                เร็วๆ นี้
-                            </span>
-                        </button>
-                        @else
-                            <button disabled
-                                    class="block w-full bg-blue-300 text-white font-bold py-3 sm:py-4 rounded-full cursor-not-allowed transition-all duration-300 text-center relative text-sm sm:text-base">
-                                <span class="opacity-60">เลือกแผนพรีเมียม</span>
-                                <span class="absolute top-1 right-3 bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                                    เร็วๆ นี้
-                                </span>
-                            </button>
-                        @endif
-                    @else
                         <button disabled
-                                class="block w-full bg-blue-300 text-white font-bold py-3 sm:py-4 rounded-full cursor-not-allowed text-center relative text-sm sm:text-base">
+                                class="block w-full bg-blue-300 text-white font-bold py-3 sm:py-4 rounded-full cursor-not-allowed transition-all duration-300 text-center relative text-sm sm:text-base">
                             <span class="opacity-60">เลือกแผนพรีเมียม</span>
                             <span class="absolute top-1 right-3 bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
                                 เร็วๆ นี้

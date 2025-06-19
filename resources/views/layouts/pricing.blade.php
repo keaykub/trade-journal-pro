@@ -66,7 +66,6 @@
             background: linear-gradient(135deg, #10b981, #059669);
         }
     </style>
-
     @livewireStyles
 </head>
 <body class="bg-gray-50">

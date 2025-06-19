@@ -8,16 +8,6 @@
         <!-- Bell Icon with Animation -->
         <i class="fas fa-bell text-lg transition-transform duration-200 group-hover:scale-110"
            :class="open ? 'text-blue-600 dark:text-blue-400' : ''"></i>
-
-        <!-- Notification Badge -->
-        @if(auth()->user()->isFree())
-            <span class="absolute -top-1 -right-1 flex h-5 w-5">
-                {{-- <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-5 w-5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold items-center justify-center shadow-lg">
-                    3
-                </span> --}}
-            </span>
-        @endif
     </button>
 
     <!-- Notification Dropdown -->

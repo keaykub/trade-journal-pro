@@ -253,9 +253,27 @@
                             <span class="lg:hidden truncate">รีเซ็ต</span>
                         </button>
                         <button wire:click="exportTrades"
-                                class="flex-1 lg:flex-none lg:w-auto px-3 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-300 font-medium flex items-center justify-center text-sm min-w-0">
-                            <i class="fas fa-download text-sm mr-2 lg:mr-0"></i>
-                            <span class="lg:hidden truncate">Export</span>
+                                wire:loading.attr="disabled"
+                                wire:target="exportTrades"
+                                class="relative flex-1 lg:flex-none lg:w-auto px-3 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-300 font-medium flex items-center justify-center text-sm min-w-0 overflow-hidden">
+
+                            {{-- Spinner ตอน loading --}}
+                            <svg wire:loading wire:target="exportTrades"
+                                class="animate-spin h-4 w-4 text-white absolute left-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+
+                            {{-- ไอคอน + ข้อความปกติ --}}
+                            <i class="fas fa-download text-sm mr-2 lg:mr-0"
+                            wire:loading.remove wire:target="exportTrades"></i>
+                            <span class="lg:hidden truncate" wire:loading.remove wire:target="exportTrades">Export</span>
+                            <span class="lg:hidden truncate" wire:loading wire:target="exportTrades">กำลังโหลด...</span>
                         </button>
                     </div>
                 </div>
@@ -629,4 +647,35 @@
         {{ session('message') }}
     </div>
 @endif
+
+<script>
+    window.addEventListener('toast', event => {
+        const { message, type } = event.detail;
+
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: 'top',
+            position: 'right',
+            backgroundColor:
+                type === 'success' ? '#10b981' :
+                type === 'error' ? '#ef4444' :
+                '#3b82f6',
+        }).showToast();
+    });
+
+    window.addEventListener('download-file', event => {
+        const url = event.detail.url;
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', '');
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+</script>
+<!-- Export Polling -->
+<div wire:poll.5s="checkExportReady"></div>
 </div>

@@ -150,7 +150,7 @@ class TradeForm extends Component
 
     protected function messages()
     {
-        $planName = auth()->user()->isFree() ? 'Free' : 'Pro/Premium';
+        $planName = auth()->user()->subscribed() ? 'Premium' : 'Free';
 
         return [
             'manualPnlValue.between' => 'P&L ต้องอยู่ระหว่าง -$999,999 ถึง $999,999',

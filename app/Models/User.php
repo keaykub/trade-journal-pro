@@ -64,57 +64,6 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class);
     }
 
-    public function hasActiveSubscription()
-    {
-        /* return $this->subscriptions()
-            ->where('status', 'verified')
-            ->exists(); */
-        return 'reject';
-    }
-
-    public function currentPlanName()
-    {
-        return $this->subscriptions()
-            ->where('status', 'verified')
-            ->orderByDesc('start_date')
-            ->first()?->plan?->name;
-    }
-
-    // 🎯 เท่านี้พอ - ง่ายๆ
-    public function getCurrentPlan()
-    {
-        /* // 1. เช็คว่ามีข้อมูลใน subscription table ไหม
-        $subscription = $this->subscriptions()
-            ->where('status', 'verified')
-            ->orderByDesc('created_at')
-            ->first();
-
-        // 2. ถ้ามี ดึง plan_id มาดู
-        if ($subscription && $subscription->plan_id) {
-            return $subscription->plan_id;
-        } */
-
-        // 3. ถ้าไม่มี = free
-        return 'free';
-    }
-
-    public function isFree()
-    {
-        return $this->getCurrentPlan() === 'free';
-    }
-
-    public function isPro()
-    {
-        $plan = $this->getCurrentPlan();
-        return in_array($plan, ['pro-monthly', 'pro-yearly']);
-    }
-
-    public function isPremium()
-    {
-        $plan = $this->getCurrentPlan();
-        return in_array($plan, ['premium-monthly', 'premium-yearly']);
-    }
-
     public function isAdmin()
     {
         $adminIds = ['bda6e82b-60f0-4c51-9020-0612f35aa4c7'];

@@ -1223,23 +1223,23 @@
     </div>
 
     <!-- Next/Submit Button -->
-    <div class="flex space-x-4">
-        @if($step < $totalSteps)
-        <button type="button"
-            wire:click="nextStep"
-            class="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg">
-            <span>ขั้นตอนต่อไป</span>
-            <i class="fas fa-arrow-right"></i>
-        </button>
-        @else
-        <button type="submit"
-            class="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 font-medium shadow-lg">
-            <i class="fas fa-save"></i>
-            <span>บันทึกการเทรด</span>
-        </button>
-        @endif
+        <div class="flex space-x-4">
+            @if($step < $totalSteps)
+            <button type="button"
+                wire:click="nextStep"
+                class="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg">
+                <span>ขั้นตอนต่อไป</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            @else
+            <button type="submit"
+                class="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 font-medium shadow-lg">
+                <i class="fas fa-save"></i>
+                <span>บันทึกการเทรด</span>
+            </button>
+            @endif
+        </div>
     </div>
-</div>
         </form>
     </div>
 
@@ -1586,7 +1586,7 @@
         }
     }
 
-     function handleDragLeave(event) {
+    function handleDragLeave(event) {
         event.preventDefault();
         event.stopPropagation();
         dragCounter--;

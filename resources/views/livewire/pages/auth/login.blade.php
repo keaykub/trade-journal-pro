@@ -28,9 +28,11 @@ new #[Layout('layouts.guest')] class extends Component
         <!-- Header with Logo -->
         <div class="text-center mb-8">
             <div class="inline-block">
-                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-chart-line text-white text-2xl"></i>
-                </div>
+                <a href="{{ route('home') }}">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <img src="{{ asset('logo/logo-40-40.png') }}" alt="WickFill Logo" class="w-12 h-12 object-contain" />
+                    </div>
+                </a>
             </div>
             <h1 class="text-3xl font-bold text-gray-800 mb-2">ยินดีต้อนรับกลับ</h1>
             <p class="text-gray-600">เข้าสู่ระบบเพื่อจัดการบัญชีของคุณ</p>
@@ -40,17 +42,11 @@ new #[Layout('layouts.guest')] class extends Component
 
         <!-- Social Login -->
         <div class="space-y-3 mb-6">
-            {{-- <a href="{{ route('login.line') }}"
-               class="social-btn w-full flex items-center justify-center gap-3 bg-green-500 text-white rounded-lg px-4 py-3 font-medium hover:bg-green-600">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771z"/>
-                </svg>
-                เข้าสู่ระบบด้วย LINE
-            </a> --}}
-
             <a href="{{ route('login.google') }}"
-               class="social-btn w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 font-medium hover:bg-gray-50">
-                <i class="fab fa-google text-red-500 text-lg"></i>
+            class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 font-medium hover:bg-gray-100">
+                <img src="https://developers.google.com/identity/images/g-logo.png"
+                    alt="Google logo"
+                    class="w-5 h-5" />
                 เข้าสู่ระบบด้วย Google
             </a>
         </div>
