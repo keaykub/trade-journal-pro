@@ -5,9 +5,9 @@
             <!-- Logo Section - Mobile Optimized -->
             <a href="{{ route('home') }}" class="flex items-center space-x-2 group min-w-0 flex-1 sm:flex-initial">
                 <div class="relative flex-shrink-0">
-                    <img src="{{ asset('logo/logo-40-40.png') }}"
+                    <img src="{{ asset('logo/9e9.png') }}"
                         alt="Wick Fill Trade Journal Logo"
-                        class="h-7 w-7 sm:h-9 sm:w-9 lg:h-10 lg:w-10 transition-all duration-300 group-hover:scale-110 drop-shadow-lg">
+                        class="h-7 w-7 sm:h-10 sm:w-10 lg:h-12 lg:w-12 transition-all duration-300 group-hover:scale-110 drop-shadow-lg">
                 </div>
                 <div class="flex flex-col min-w-0">
                     <span class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-blue-900 leading-tight tracking-tight truncate">

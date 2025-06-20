@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('logo/logo-40-40.png') }}" type="image/png">
 
-    <title>@yield('title', 'WickFill Trade Journal - ระบบบันทึกการเทรดของคุณ')</title>
+    <title>@yield('title', 'WickFill Trade Journal')</title>
 
     <!-- Fonts -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
