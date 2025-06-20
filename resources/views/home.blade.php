@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '#1 Trade Journal - ระบบบันทึกการเทรดของคุณ')
+@section('title', '#1 Trade Journal')
 
 @section('content')
     @include('partials.navigation')
