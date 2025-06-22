@@ -417,11 +417,12 @@ class TradeForm extends Component
             ],
             2 => [
                 'entryPrice' => 'required|numeric',
+                'lot_size'   => 'required|numeric|min:0.01', // ✅ เพิ่มตรงนี้
             ],
             3 => [
-                'strategy'       => 'required|string',
-                'newImages' => 'nullable|array|max:' . $this->maxImages,
-                'newImages.*' => 'image|max:' . ($this->maxImageSize * 1024),
+                'strategy'     => 'required|string',
+                'newImages'    => 'nullable|array|max:' . $this->maxImages,
+                'newImages.*'  => 'image|max:' . ($this->maxImageSize * 1024),
             ],
             default => [],
         };
