@@ -417,7 +417,7 @@ class TradeForm extends Component
             ],
             2 => [
                 'entryPrice' => 'required|numeric',
-                'lot_size'   => 'required|numeric|min:0.01', // ✅ เพิ่มตรงนี้
+                'lotSize'   => 'required|numeric|min:0.01',
             ],
             3 => [
                 'strategy'     => 'required|string',
