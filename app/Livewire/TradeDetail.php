@@ -12,6 +12,10 @@ class TradeDetail extends Component
 
     public function mount($id)
     {
+        if (!auth()->user()?->hasVerifiedEmail()) {
+            redirect()->route('verification.notice');
+        }
+
         $this->tradeId = $id;
 
         // ดึงข้อมูล Trade ที่เป็นของ user ที่ login

@@ -36,6 +36,10 @@ class UserSettings extends Component
 
     public function mount()
     {
+        if (!auth()->user()?->hasVerifiedEmail()) {
+            redirect()->route('verification.notice');
+        }
+
         $this->user = Auth::user();
         $this->first_name = $this->user->first_name;
         $this->last_name = $this->user->last_name;

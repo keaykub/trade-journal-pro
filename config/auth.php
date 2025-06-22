@@ -112,4 +112,8 @@ return [
 
     'password_timeout' => 10800,
 
+    'verification' => [
+        'expire' => 60, // ตัวอย่าง: 1440 นาที = 1 วัน
+    ],
+
 ];

@@ -21,6 +21,7 @@ new #[Layout('layouts.guest')] class extends Component
      */
     public function register(): void
     {
+        $this->email = strtolower($this->email);
         $validated = $this->validate([
             'name' => [
                 'required',
@@ -28,7 +29,7 @@ new #[Layout('layouts.guest')] class extends Component
                 'max:255',
                 'regex:/^[a-zA-Z0-9ก-๙]+$/' // อนุญาตเฉพาะตัวอักษรภาษาอังกฤษ, ตัวเลข, ตัวอักษรไทย (ห้ามช่องว่าง)
             ],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ], [
             'name.regex' => 'ชื่อผู้ใช้งานสามารถใช้ได้เฉพาะตัวอักษรและตัวเลขเท่านั้น'

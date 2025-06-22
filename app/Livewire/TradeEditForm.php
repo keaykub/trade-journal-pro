@@ -179,6 +179,10 @@ class TradeEditForm extends Component
 
     public function mount($id)
     {
+        if (!auth()->user()?->hasVerifiedEmail()) {
+            redirect()->route('verification.notice');
+        }
+
         $this->tradeId = $id;
         $this->trade = Trade::where('id', $id)
             ->where('user_id', auth()->id())

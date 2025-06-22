@@ -230,6 +230,9 @@ Route::get('/delete-user/{id}', function($id) {
     return 'User not found';
 });
 
+Route::get('/test-verify', function () {
+    return 'verified = ' . (auth()->user()?->hasVerifiedEmail() ? 'YES' : 'NO');
+})->middleware(['auth']);
 
 
 require __DIR__.'/auth.php';

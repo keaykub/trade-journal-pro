@@ -23,7 +23,6 @@ class SubscriptionController extends Controller
             ], 200);
         }
 
-
         $priceId = match ($plan) {
             'pro' => 'price_1RaIueCZi1bmUwYslJWl6shH',
             default => abort(400, 'Invalid plan'),

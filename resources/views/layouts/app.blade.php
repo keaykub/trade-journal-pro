@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', '#1 Trade Journal')</title>
-    <link rel="icon" href="{{ asset('logo/9e9.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('logo/wickfill-logo.png') }}" type="image/x-icon">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

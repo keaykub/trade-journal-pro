@@ -32,6 +32,10 @@ class Dashboard extends Component
 
     public function mount()
     {
+        if (!auth()->user()?->hasVerifiedEmail()) {
+            redirect()->route('verification.notice');
+        }
+
         // Set default date range to current month
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->endOfMonth()->format('Y-m-d');

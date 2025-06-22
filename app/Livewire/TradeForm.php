@@ -162,6 +162,10 @@ class TradeForm extends Component
 
     public function mount()
     {
+        if (!auth()->user()?->hasVerifiedEmail()) {
+            redirect()->route('verification.notice');
+        }
+
         $this->entryDate = now()->format('Y-m-d');
         $this->entryTime = now()->format('H:i');
         $this->exitDate = now()->format('Y-m-d');

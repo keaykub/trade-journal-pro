@@ -19,6 +19,10 @@ class TradeAnalytics extends Component
 
     public function mount()
     {
+        if (!auth()->user()?->hasVerifiedEmail()) {
+            redirect()->route('verification.notice');
+        }
+
         // Set default date range to current year
         $this->dateFrom = now()->startOfYear()->format('Y-m-d');
         $this->dateTo = now()->endOfYear()->format('Y-m-d');
