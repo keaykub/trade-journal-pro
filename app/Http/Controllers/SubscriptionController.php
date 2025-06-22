@@ -42,7 +42,6 @@ class SubscriptionController extends Controller
         $user = $request->user();
         $plan = $request->input('plan');
 
-        // ถ้ามี subscription และยัง active → ส่งไป dashboard เลย
         if ($user->subscribed('default') && $user->subscription('default')->valid()) {
             return response()->json([
                 'error' => 'คุณมีการสมัครสมาชิกอยู่แล้ว',
@@ -55,18 +54,19 @@ class SubscriptionController extends Controller
             default => abort(400, 'Invalid plan'),
         };
 
-        // ตั้งค่า API key ของ Stripe
+        // สร้างหรือดึง Stripe customer
+        $user->createOrGetStripeCustomer();
+
         Stripe::setApiKey(config('cashier.secret'));
 
-        // สร้าง Checkout Session แบบกำหนด allow_promotion_codes
         $session = StripeSession::create([
-            'customer' => $user->stripe_id, // ถ้ายังไม่มี สามารถไม่ใส่ได้
+            'customer' => $user->stripe_id, // ✅ ใช้อันนี้ เพราะระบบคุณ login ก่อนเสมอ
             'mode' => 'subscription',
             'line_items' => [[
                 'price' => $priceId,
                 'quantity' => 1,
             ]],
-            'allow_promotion_codes' => true, // ✅ เปิดให้ใส่โค้ดลดราคาที่หน้า Checkout
+            'allow_promotion_codes' => true,
             'success_url' => route('dashboard') . '?checkout=success',
             'cancel_url' => URL::previous(),
         ]);
